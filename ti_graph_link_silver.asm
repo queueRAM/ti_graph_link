@@ -11,10 +11,6 @@
 ; sdcc -mmcs51 --code-size 0x1400 ti_graph_link_silver.rel -o ti_graph_link_silver.hex
 ; makebin -p ti_graph_link_silver.hex ti_graph_link_silver.bin
 
-; not sure what these are, but the sdcc linker wants them
-.area PSEG    (PAG,XDATA)
-.area XSEG    (XDATA)
-
 ; definitions of registers
 OEPCNF_2   = 0xff10
 OEPBBAX_2  = 0xff11
@@ -43,40 +39,98 @@ USBMSK = 0xfffd
 USBSTA = 0xfffe
 FUNADR = 0xffff
 
+.area PSEG    (PAG,XDATA)
+
 ;--------------------------------------------------------
-; home
+; data
+;--------------------------------------------------------
+.area DSEG    (DATA)
+
+.word 0, 0, 0, 0, 0, 0, 0, 0
+.word 0, 0, 0, 0, 0, 0, 0, 0
+
+dat_20_start:
+dat_20_end:
+.word 0, 0, 0, 0, 0, 0, 0, 0
+
+.word 0, 0, 0, 0, 0
+.byte 0
+
+bss_start:
+i2c_speed: ; 0x3b
+.byte 0
+
+.word 0, 0
+.word 0, 0, 0, 0, 0, 0, 0, 0
+
+.byte 0, 0, 0
+
+dat_53:
+.byte 0
+.byte 0, 0, 0, 0, 0, 0
+
+dat_5a:
+.byte 0
+
+dat_5b:
+.byte 0
+
+dat_5c:
+.byte 0
+.byte 0, 0, 0, 0, 0
+bss_end:
+
+dat_62_start:
+.byte 0, 0
+dat_64:
+.byte 0
+dat_65:
+.byte 0, 0, 0, 0
+dat_62_end:
+
+stack_start:
+
+;--------------------------------------------------------
+; xdata
+;--------------------------------------------------------
+.area XSEG    (XDATA)
+
+xdat_0001:
+
+;--------------------------------------------------------
+; code
 ;--------------------------------------------------------
 .area HOME    (CODE)
 
 ; interrupt vector @ 0x0000
 int_vec:
-  ljmp  fcn_000e
-  ljmp  fcn_02ce
+  ljmp  reset_isr  ; 0x0000: Reset
+  ljmp  exti_isr   ; 0x0003: External Interrupt 0
   nop
   nop
   nop
   nop
   nop
-  ljmp  fcn_03d4
+  ljmp  timer0_isr ; 0x000b: Timer-0 Interrupt
 
 ;--------------------------------------------------------
 ; code
 ;--------------------------------------------------------
 .area CSEG    (CODE)
 
-fcn_000e:
-  mov   sp, #0x68
+reset_isr: ; 0x000e
+  mov   sp, #stack_start-1
   lcall fcn_02c9
   mov   a, r4
   orl   a, r5
   jz    lbl_0082
-  mov   r0, #0x61
+  mov   r0, #bss_end-1
   sjmp  lbl_001f
 lbl_001c:
   mov   @r0, #0x00
   dec   r0
 lbl_001f:
-  cjne  r0, #0x3b, lbl_001c
+  cjne  r0, #bss_start, lbl_001c
   mov   r0, #0x1f
   sjmp  lbl_0029
 lbl_0026:
@@ -96,7 +150,7 @@ lbl_0033:
   mov   r7, dpl
   mov   dptr, #0x0001
 lbl_0040:
-  lcall fcn_008b
+  lcall ptr_equal
   jz    lbl_004a
   clr   a
   movx  @dptr, a
@@ -116,24 +170,26 @@ lbl_0054:
   inc   r0
   sjmp  lbl_0054
 lbl_005e:
-  mov   dptr, #dat_00e9
-  lcall fcn_0094
-  mov   dptr, #dat_00ed
-  lcall fcn_0094
-  mov   dptr, #dat_00f1
-  lcall fcn_0094
-  mov   dptr, #dat_00f5
-  lcall fcn_00b2
-  mov   dptr, #dat_00fb
-  lcall fcn_00b2
-  mov   dptr, #dat_0101
-  lcall fcn_00b2
+  mov   dptr, #cdat_00e9
+  lcall data_copy
+  mov   dptr, #cdat_00ed
+  lcall data_copy
+  mov   dptr, #cdat_00f1
+  lcall data_copy
+  mov   dptr, #cdat_00f5
+  lcall xdata_copy
+  mov   dptr, #cdat_00fb
+  lcall xdata_copy
+  mov   dptr, #cdat_0101
+  lcall xdata_copy
 lbl_0082:
   mov   psw, #0x00
   lcall fcn_042f
-  ljmp  fcn_0107
+  ljmp  loop_forever
 
-fcn_008b:
+; return 0 if (r7 == dpl) && (r6 == dph)
+; else return non-zero
+ptr_equal: ; 008b
   mov   a, r7
   xrl   a, dpl
   jnz   lbl_0093
@@ -142,88 +198,101 @@ fcn_008b:
 lbl_0093:
   ret
 
-fcn_0094:
+; memcpy-like
+; input: dptr (code) points to array of 3 pointers
+;   uint8 dest_start (data)
+;   uint8 dest_end (data)
+;   uint16 source (code)
+data_copy: ; 0094
   clr   a
   movc  a, @a+dptr
-  mov   r0, a
+  mov   r0, a     ; r0 = dest_start
   mov   a, #0x01
   movc  a, @a+dptr
-  mov   r1, a
+  mov   r1, a     ; r1 = dest_end
   mov   a, #0x02
   movc  a, @a+dptr
   mov   r6, a
   mov   a, #0x03
   movc  a, @a+dptr
   mov   dpl, a
-  mov   dph, r6
+  mov   dph, r6    ; dptr = source
 lbl_00a6:
   mov   a, r0
   xrl   a, r1
-  jnz   lbl_00ab
+  jnz   lbl_00ab   ; if r0 == r1, return
   ret
 lbl_00ab:
   clr   a
-  movc  a, @a+dptr
-  mov   @r0, a
-  inc   dptr
-  inc   r0
+  movc  a, @a+dptr ; a = *src
+  mov   @r0, a     ; *dst = a
+  inc   dptr       ; src++
+  inc   r0         ; dst++
   sjmp  lbl_00a6
 
-fcn_00b2:
+; memcpy-like
+; input: dptr (code) points to array of 3 16-bit pointers
+;   ptr[0] = dest (xdata)
+;   ptr[1] = source_end (code)
+;   ptr[2] = source_start (code)
+xdata_copy:
   clr   a
   movc  a, @a+dptr
-  mov   r4, a
+  mov   r4, a       ; r4 = dest.l
   mov   a, #0x01
   movc  a, @a+dptr
-  mov   r5, a
+  mov   r5, a       ; r5 = dest.h
   mov   a, #0x02
   movc  a, @a+dptr
-  mov   r6, a
+  mov   r6, a       ; r6 = source_end.l
   mov   a, #0x03
   movc  a, @a+dptr
-  mov   r7, a
+  mov   r7, a       ; r7 = source_end.h
   mov   a, #0x04
   movc  a, @a+dptr
   mov   r0, a
   mov   a, #0x05
   movc  a, @a+dptr
   mov   dpl, a
-  mov   dph, r0
+  mov   dph, r0     ; dptr = source_start
 lbl_00cc:
-  lcall fcn_008b
-  jnz   lbl_00d2
+  lcall ptr_equal
+  jnz   lbl_00d2  ; if source == source_end, return
   ret
 lbl_00d2:
   clr   a
-  movc  a, @a+dptr
-  inc   dptr
+  movc  a, @a+dptr ; a = *src
+  inc   dptr       ; dptr++
   mov   r0, dph
-  mov   r1, dpl
+  mov   r1, dpl    ; r0, r1 = dptr (src += 1)
   mov   dph, r4
   mov   dpl, r5
-  movx  @dptr, a
+  movx  @dptr, a   ; *dest = a
   inc   dptr
   mov   r4, dph
   mov   r5, dpl
   mov   dph, r0
-  mov   dpl, r1
+  mov   dpl, r1    ; dptr = r0, r1
   sjmp  lbl_00cc
 
-dat_00e9:
-  .byte 0x20, 0x20, 0x02, 0x7e
-dat_00ed:
-  .byte 0x20, 0x20, 0x02, 0x7e
-dat_00f1:
-  .byte 0x62, 0x69, 0x02, 0x7e
-dat_00f5:
-  .byte 0x00, 0x01, 0x02, 0x85, 0x02, 0x85
-dat_00fb:
-  .byte 0x00, 0x01, 0x02, 0x85, 0x02, 0x85
-dat_0101:
-  .byte 0x00, 0x01, 0x02, 0xc9, 0x02, 0xc9
+cdat_00e9:
+  .byte dat_20_start, dat_20_end
+  .word cdat_027e
+cdat_00ed:
+  .byte dat_20_start, dat_20_end
+  .word cdat_027e
+cdat_00f1:
+  .byte dat_62_start, dat_62_end
+  .word cdat_027e
+cdat_00f5:
+  .word xdat_0001, cdat_0285_start, cdat_0285_end
+cdat_00fb:
+  .word xdat_0001, cdat_0285_start, cdat_0285_end
+cdat_0101:
+  .word xdat_0001, cdat_02c9_start, cdat_02c9_end
 
-fcn_0107:
-  sjmp  fcn_0107
+loop_forever: ; 0107
+  sjmp  loop_forever
 
 fcn_0109:
   pop   dph
@@ -231,7 +300,7 @@ fcn_0109:
   mov   b, a
 lbl_010f:
   clr   a
-
+; fall through
 fcn_0110:
   movc  a, @a+dptr
   jnz   lbl_011c
@@ -504,9 +573,11 @@ fcn_027c:
   clr   a
   jmp   @a+dptr
 
-dat_027e:
-  .byte 0x00, 0xfa, 0x00, 0x00
-  .byte 0x00, 0x00, 0x00, 0x08
+cdat_027e:
+  .byte 0x00, 0xfa, 0x00, 0x00, 0x00, 0x00, 0x00
+cdat_0285_start:
+cdat_0285_end:
+  .byte 0x08
   .byte 0xfd, 0x00, 0x20, 0x06
   .byte 0x63, 0x00, 0x21, 0x06
   .byte 0xe5, 0x00, 0x27, 0x07
@@ -524,13 +595,16 @@ dat_027e:
   .byte 0x2c, 0x00, 0x21, 0x09
   .byte 0x90, 0x00, 0x20, 0x0b
   .byte 0xb1, 0x00, 0x29
+cdat_02c9_start:
+cdat_02c9_end:
 
+; returns 0x01, 0x00
 fcn_02c9:
   mov   r4, #0x01
   mov   r5, #0x00
   ret
 
-fcn_02ce:
+exti_isr:
   push  acc
   push  b
   push  dpl
@@ -554,7 +628,7 @@ fcn_02ce:
   push  acc
   mov   dptr, #WDCSR
   movx  a, @dptr
-  orl   a, #0x01
+  orl   a, #0x01   ; WDT: kick the watchdog
   movx  @dptr, a
   mov   dptr, #VECINT
   movx  a, @dptr
@@ -615,7 +689,7 @@ fcn_02ce:
   mov   dptr, #VECINT
   movx  @dptr, a
   sjmp  lbl_03aa
-  mov   r0, #0x64
+  mov   r0, #dat_64
   mov   @r0, #0x00
   mov   a, #0x20
   mov   dptr, #USBSTA
@@ -624,7 +698,7 @@ fcn_02ce:
   mov   dptr, #VECINT
   movx  @dptr, a
   sjmp  lbl_03aa
-  mov   r0, #0x64
+  mov   r0, #dat_64
   mov   @r0, #0x01
   mov   a, #0x40
   mov   dptr, #USBSTA
@@ -633,7 +707,7 @@ fcn_02ce:
   mov   dptr, #VECINT
   movx  @dptr, a
   sjmp  lbl_03aa
-  mov   r0, #0x64
+  mov   r0, #dat_64
   mov   @r0, #0x00
   lcall fcn_048e
   mov   a, #0x80
@@ -643,7 +717,7 @@ fcn_02ce:
   mov   dptr, #VECINT
   movx  @dptr, a
   sjmp  lbl_03aa
-  mov   r0, #0x64
+  mov   r0, #dat_64
   mov   @r0, #0x00
   mov   a, #0x02
   mov   dptr, #USBSTA
@@ -662,7 +736,7 @@ fcn_02ce:
 lbl_03aa:
   mov   dptr, #WDCSR
   movx  a, @dptr
-  orl   a, #0x01
+  orl   a, #0x01   ; WDT: kick the watchdog
   movx  @dptr, a
   pop   acc
   mov   r7, a
@@ -687,7 +761,11 @@ lbl_03aa:
   pop   acc
   reti
 
-fcn_03d4:
+; Timer-0 Interrupt Handler
+; * kicks watchdog
+; * reloads 0xF830 into th0/tl0
+; * decrements 0x63, if 0, reload 0xfa and decrement 0x62
+timer0_isr:
   push  acc
   push  dpl
   push  dph
@@ -695,10 +773,10 @@ fcn_03d4:
   push  acc
   mov   dptr, #WDCSR
   movx  a, @dptr
-  orl   a, #0x01
+  orl   a, #0x01   ; WDT: kick the watchdog
   movx  @dptr, a
-  mov   th0, #0xf8
-  mov   tl0, #0x30
+  mov   th0, #0xf8 ; TH0: Timer0 high
+  mov   tl0, #0x30 ; TL0: Timer0 low
   mov   r0, #0x62
   mov   a, @r0
   jnz   lbl_03f9
@@ -726,76 +804,76 @@ lbl_0408:
   pop   acc
   reti
 
-fcn_0412:
-  clr   ie.7
-  lcall fcn_04de
+initialize_hardware: ; 0412
+  clr   ie.7        ; EA: disable all interrupts
+  lcall usb_init
   mov   r4, #0x01
-  lcall fcn_0ca0
-  anl   tmod, #0xf0
-  orl   tmod, #0x01
-  mov   th0, #0xf8
-  mov   tl0, #0x30
-  clr   tcon.5
-  setb  tcon.4
-  setb  ie.1
+  lcall i2c_set_bus_speed
+  anl   tmod, #0xf0 ; TMOD: timer mode
+  orl   tmod, #0x01 ; TMOD: Timer0 = 16-bit
+  mov   th0, #0xf8  ; TH0: Timer0 high
+  mov   tl0, #0x30  ; TL0: Timer0 low
+  clr   tcon.5      ; TF0: Timer0 overflow flag
+  setb  tcon.4      ; TR0: Timer0 run control bit
+  setb  ie.1        ; ET0: Timer0 interrupt enable
   ret
 
 fcn_042f:
   mov   dptr, #WDCSR
   movx  a, @dptr
-  orl   a, #0x01
+  orl   a, #0x01   ; WDT: kick the watchdog
   movx  @dptr, a
   setb  p3.3
   setb  p3.4
-  lcall fcn_0412
-  setb  ie.7
-  setb  ie.0
+  lcall initialize_hardware
+  setb  ie.7       ; EA: enable all interrupts
+  setb  ie.0       ; EX0: external interrupt 0 enable
   mov   dptr, #USBCTL
   movx  a, @dptr
   orl   a, #0x80
   movx  @dptr, a
-lbl_0448:
-  mov   r0, #0x65
+lbl_0448:          ; while (dat_65 != 0x02) {
+  mov   r0, #dat_65
   mov   a, @r0
   xrl   a, #0x02
-  jz    lbl_0451
+  jz    lbl_0451   ; }
   sjmp  lbl_0448
 lbl_0451:
   lcall fcn_0d90
-  mov   r0, #0x5c
+  mov   r0, #dat_5c
   mov   a, @r0
   jnz   lbl_045e
-  mov   r0, #0x5b
+  mov   r0, #dat_5b
   mov   a, @r0
   jz    lbl_0474
 lbl_045e:
-  mov   r0, #0x5c
+  mov   r0, #dat_5c
   mov   a, @r0
-  mov   r0, #0x5b
+  mov   r0, #dat_5b
   orl   a, @r0
-  mov   r1, #0x53
+  mov   r1, #dat_53
   mov   r4, a
   mov   a, @r1
   orl   a, r4
-  mov   r0, #0x53
+  mov   r0, #dat_53
   mov   @r0, a
-  mov   r0, #0x5c
+  mov   r0, #dat_5c
   mov   @r0, #0x00
-  mov   r0, #0x5b
+  mov   r0, #dat_5b
   mov   @r0, #0x00
 lbl_0474:
-  mov   r0, #0x64
+  mov   r0, #dat_64
   mov   a, @r0
   dec   a
   jnz   lbl_048b
   mov   dptr, #WDCSR
   movx  a, @dptr
-  orl   a, #0x01
+  orl   a, #0x01   ; WDT: kick the watchdog
   movx  @dptr, a
   orl   pcon, #0x01
   mov   dptr, #WDCSR
   movx  a, @dptr
-  orl   a, #0x01
+  orl   a, #0x01   ; WDT: kick the watchdog
   movx  @dptr, a
 lbl_048b:
   sjmp  lbl_0448
@@ -804,7 +882,7 @@ lbl_048b:
 fcn_048e:
   mov   dptr, #WDCSR
   movx  a, @dptr
-  orl   a, #0x01
+  orl   a, #0x01   ; WDT: kick the watchdog
   movx  @dptr, a
   mov   r0, #0x3e
   mov   a, #0xff
@@ -836,7 +914,7 @@ fcn_048e:
   mov   @r0, #0x00
   mov   r0, #0x3d
   mov   @r0, #0x00
-  mov   r0, #0x64
+  mov   r0, #dat_64
   mov   @r0, #0x00
   mov   a, #0x80
   mov   dptr, #IEPBCNT_0
@@ -852,33 +930,33 @@ fcn_048e:
   movx  @dptr, a
   ljmp  fcn_0b67
 
-fcn_04de:
+usb_init: ; 04de
   clr   a
   mov   dptr, #FUNADR
-  movx  @dptr, a
-  mov   r0, #0x64
+  movx  @dptr, a        ; *FUNADR = 0x00
+  mov   r0, #dat_64
   mov   @r0, #0x00
   clr   a
   mov   dptr, #USBCTL
-  movx  @dptr, a
+  movx  @dptr, a       ; *USBCTL = 0x00
   clr   a
   mov   dptr, #IEPCNFG_0
-  movx  @dptr, a
+  movx  @dptr, a       ; *IEPCNCFG_0 = 0x00
   clr   a
   mov   dptr, #OEPCNFG_0
-  movx  @dptr, a
+  movx  @dptr, a       ; *OEPCNFG_0 = 0x00
   clr   a
   mov   dptr, #OEPCNF_2
-  movx  @dptr, a
+  movx  @dptr, a       ; *OEPCNF_2 = 0x00
   mov   a, #0xe6
   mov   dptr, #USBMSK
-  movx  @dptr, a
+  movx  @dptr, a       ; *USBMSK = RSTR | SUSR | RESR | SETUP | WAKEUP
   ret
 
 fcn_0502:
   mov   dptr, #WDCSR
   movx  a, @dptr
-  orl   a, #0x01
+  orl   a, #0x01   ; WDT: kick the watchdog
   movx  @dptr, a
   mov   dptr, #IEPCNFG_0
   movx  a, @dptr
@@ -893,7 +971,7 @@ fcn_0502:
 fcn_0518:
   mov   dptr, #WDCSR
   movx  a, @dptr
-  orl   a, #0x01
+  orl   a, #0x01   ; WDT: kick the watchdog
   movx  @dptr, a
   clr   a
   mov   dptr, #OEPBCNT_0
@@ -903,7 +981,7 @@ fcn_0518:
 fcn_0525:
   mov   dptr, #WDCSR
   movx  a, @dptr
-  orl   a, #0x01
+  orl   a, #0x01   ; WDT: kick the watchdog
   movx  @dptr, a
   mov   dptr, #OEPCNFG_0
   movx  a, @dptr
@@ -992,7 +1070,7 @@ lbl_059a:
 lbl_05a5:
   mov   dptr, #WDCSR
   movx  a, @dptr
-  orl   a, #0x01
+  orl   a, #0x01   ; WDT: kick the watchdog
   movx  @dptr, a
   mov   r0, #0x21
   mov   @r0, #0x00
@@ -1044,7 +1122,7 @@ lbl_05e9:
 lbl_05ed:
   mov   dptr, #WDCSR
   movx  a, @dptr
-  orl   a, #0x01
+  orl   a, #0x01   ; WDT: kick the watchdog
   movx  @dptr, a
   ret
 
@@ -1124,7 +1202,7 @@ fcn_0648:
 fcn_064b:
   mov   dptr, #WDCSR
   movx  a, @dptr
-  orl   a, #0x01
+  orl   a, #0x01   ; WDT: kick the watchdog
   movx  @dptr, a
   mov   r0, #0x3e
   mov   a, #0xff
@@ -1214,7 +1292,7 @@ lbl_06da:
 lbl_06dd:
   mov   dptr, #WDCSR
   movx  a, @dptr
-  orl   a, #0x01
+  orl   a, #0x01   ; WDT: kick the watchdog
   movx  @dptr, a
   ret
   lcall fcn_0518
@@ -1235,7 +1313,7 @@ lbl_06f9:
   add   a, #0xee
   jc    lbl_0713
   mov   a, r7
-  mov   dptr, #dat_0fb3
+  mov   dptr, #cdat_0fb3
   movc  a, @a+dptr
   mov   r4, a
   mov   a, r7
@@ -1268,7 +1346,7 @@ lbl_072c:
   add   a, #0xe0
   jc    lbl_0746
   mov   a, r7
-  mov   dptr, #dat_0fc5
+  mov   dptr, #cdat_0fc5
   movc  a, @a+dptr
   mov   r4, a
   mov   a, r7
@@ -1320,7 +1398,7 @@ lbl_0776:
   mov   a, r4
   jz    lbl_0790
   mov   a, r6
-  mov   dptr, #dat_0fe5
+  mov   dptr, #cdat_0fe5
   movc  a, @a+dptr
   mov   r5, #0x00
   mov   r4, a
@@ -1340,7 +1418,7 @@ lbl_0790:
   mov   @r0, a
   mov   r0, #0x28
   mov   a, @r0
-  mov   dptr, #dat_0fe5
+  mov   dptr, #cdat_0fe5
   movc  a, @a+dptr
   mov   r0, #0x3f
   mov   @r0, a
@@ -1372,7 +1450,7 @@ lbl_0790:
   mov   r6, a
   mov   r7, a
   ljmp  fcn_05f5
-  mov   dptr, #dat_0fcc
+  mov   dptr, #cdat_0fcc
   clr   a
   movc  a, @a+dptr
   jnb   acc.6, lbl_07d7
@@ -1525,7 +1603,7 @@ lbl_08ab:
   movx  a, @dptr
   mov   dptr, #FUNADR
   movx  @dptr, a
-  mov   r0, #0x65
+  mov   r0, #dat_65
   mov   @r0, #0x01
   lcall fcn_064b
   sjmp  lbl_08ca
@@ -1541,7 +1619,7 @@ lbl_08ca:
   mov   r0, #0x3c
   mov   a, @r0
   jnz   lbl_08ea
-  mov   r0, #0x65
+  mov   r0, #dat_65
   mov   @r0, #0x01
   clr   a
   mov   dptr, #IEPCNF_1
@@ -1551,7 +1629,7 @@ lbl_08ca:
   movx  @dptr, a
   sjmp  lbl_08fa
 lbl_08ea:
-  mov   r0, #0x65
+  mov   r0, #dat_65
   mov   @r0, #0x02
   mov   a, #0x84
   mov   dptr, #IEPCNF_1
@@ -1732,7 +1810,7 @@ lbl_09f5:
   mov   @r0, a
   mov   dptr, #WDCSR
   movx  a, @dptr
-  orl   a, #0x01
+  orl   a, #0x01   ; WDT: kick the watchdog
   movx  @dptr, a
   mov   r0, #0x38
   mov   a, r4
@@ -1978,7 +2056,7 @@ fcn_0b5d:
   mov   dptr, #OEPBCTX_2
   movx  a, @dptr
   anl   a, #0x7f
-  mov   r0, #0x5a
+  mov   r0, #dat_5a
   mov   @r0, a
   ret
 
@@ -2022,12 +2100,12 @@ fcn_0b67:
   mov   @r0, a
   mov   r0, #0x50
   mov   @r0, #0x20
-  mov   r0, #0x53
+  mov   r0, #dat_53
   mov   @r0, #0x00
   ret
   mov   dptr, #WDCSR
   movx  a, @dptr
-  orl   a, #0x01
+  orl   a, #0x01   ; WDT: kick the watchdog
   movx  @dptr, a
   mov   dptr, #0xff01 ; 0xff00-0xff07: setup packet
   movx  a, @dptr
@@ -2041,7 +2119,7 @@ fcn_0b67:
   mov   r0, #0x56
   mov   @r0, a
   jnb   acc.7, lbl_0bd6
-  mov   r0, #0x53
+  mov   r0, #dat_53
   xch   a, @r0
   anl   a, #0x80
   mov   @r0, a
@@ -2049,7 +2127,7 @@ lbl_0bd6:
   mov   r0, #0x56
   mov   a, @r0
   jnb   acc.0, lbl_0be2
-  mov   r0, #0x53
+  mov   r0, #dat_53
   xch   a, @r0
   orl   a, #0x80
   mov   @r0, a
@@ -2117,7 +2195,7 @@ lbl_0c20:
   mov   dptr, #0xff01 ; 0xff00-0xff07: setup packet
   movx  a, @dptr
   cjne  a, #0xa2, 0x0c9c
-  mov   a, #0x2a
+  mov   a, #0x2a      ; 0b0010_1010: disable watchdog
   mov   dptr, #WDCSR
   movx  @dptr, a
   clr   a
@@ -2167,7 +2245,7 @@ lbl_0c8a:
 lbl_0c90:
   mov   dptr, #WDCSR
   movx  a, @dptr
-  orl   a, #0x01
+  orl   a, #0x01   ; WDT: kick the watchdog
   movx  @dptr, a
   lcall fcn_064b
   sjmp  lbl_0c9f
@@ -2175,55 +2253,78 @@ lbl_0c90:
 lbl_0c9f:
   ret
 
-fcn_0ca0:
-  mov   r0, #0x3b
+; set I2C bus speed
+; input: r4, 1 = 400kHz, otherwise 100kHz
+;
+; a = r4
+; *(0x3b) = a
+; a--
+; if (!a) {
+;   *I2CSTA |= 0x10;
+; } else {
+;   *I2CSTA &= 0xEF;
+; }
+i2c_set_bus_speed: ; 0ca0
+  mov   r0, #i2c_speed ; 0x3b some debug byte showing current I2C speed?
   mov   a, r4
   mov   @r0, a
   dec   a
   jnz   lbl_0cb0
   mov   dptr, #I2CSTA
   movx  a, @dptr
-  orl   a, #0x10
+  orl   a, #0x10 ; 1/4: 1 = 400kHz
   movx  @dptr, a
   sjmp  lbl_0cb7
 lbl_0cb0:
   mov   dptr, #I2CSTA
   movx  a, @dptr
-  anl   a, #0xef
+  anl   a, #0xef ; 1/4: 0 = 100kHz
   movx  @dptr, a
 lbl_0cb7:
   ret
 
-fcn_0cb8:
+; wait for I2C TX empty
+; return: 0 success, 1 bus error
+;
+; while (!(*I2CSTA & 0x04)) {
+;   kick_watchdog();
+;   if (*I2CSTA & 0x20) { // I2C_ERR
+;     kick_watchdog();
+;     *I2CSTA |= 0x20; // I2C_ERR
+;     return 1;
+;   }
+; }
+; return 0;
+i2c_wait_tx_empty: ; 0cb8
 lbl_0cb8:
   mov   dptr, #I2CSTA
   movx  a, @dptr
-  jb    acc.3, lbl_0ce7
+  jb    acc.3, lbl_0ce7 ; TXE: transmit empty
   mov   dptr, #WDCSR
   movx  a, @dptr
-  orl   a, #0x01
+  orl   a, #0x01   ; WDT: kick the watchdog
   movx  @dptr, a
   mov   dptr, #I2CSTA
   movx  a, @dptr
-  jnb   acc.5, lbl_0ce5
+  jnb   acc.5, lbl_0ce5 ; ERR: jump if no bus error
 lbl_0ccd:
   mov   dptr, #WDCSR
   movx  a, @dptr
-  orl   a, #0x01
+  orl   a, #0x01   ; WDT: kick the watchdog
   movx  @dptr, a
   mov   dptr, #I2CSTA
   movx  a, @dptr
-  orl   a, #0x20
+  orl   a, #0x20   ; ERR: write to clear
   movx  @dptr, a
   mov   dptr, #I2CSTA
   movx  a, @dptr
-  jb    acc.5, lbl_0ccd
-  mov   r4, #0x01
+  jb    acc.5, lbl_0ccd ; ERR: bus error
+  mov   r4, #0x01       ; return 1
   ret
 lbl_0ce5:
   sjmp  lbl_0cb8
 lbl_0ce7:
-  mov   r4, #0x00
+  mov   r4, #0x00       ; return 0
   ret
 
 fcn_0cea:
@@ -2261,7 +2362,7 @@ lbl_0d06:
   mov   a, @r0
   mov   dptr, #I2CDATO
   movx  @dptr, a
-  lcall fcn_0cb8
+  lcall i2c_wait_tx_empty
   mov   a, r4
   jz    lbl_0d26
   mov   r4, #0x01
@@ -2271,7 +2372,7 @@ lbl_0d26:
   mov   a, @r0
   mov   dptr, #I2CDATO
   movx  @dptr, a
-  lcall fcn_0cb8
+  lcall i2c_wait_tx_empty
   mov   a, r4
   jz    lbl_0d36
   mov   r4, #0x01
@@ -2303,7 +2404,7 @@ lbl_0d52:
   lcall fcn_0132
   mov   dptr, #I2CDATO
   movx  @dptr, a
-  lcall fcn_0cb8
+  lcall i2c_wait_tx_empty
   mov   a, r4
   jz    lbl_0d62
   mov   r4, #0x01
@@ -2334,7 +2435,7 @@ lbl_0d6c:
   lcall fcn_0132
   mov   dptr, #I2CDATO
   movx  @dptr, a
-  lcall fcn_0cb8
+  lcall i2c_wait_tx_empty
   mov   a, r4
   jz    lbl_0d8d
   mov   r4, #0x01
@@ -2348,7 +2449,7 @@ fcn_0d90:
   jnb   p3.3, lbl_0d99
   ljmp  lbl_0e95
 lbl_0d99:
-  mov   r0, #0x5c
+  mov   r0, #dat_5c
   mov   @r0, #0x00
   mov   r1, #0x00
   mov   r0, #0x60
@@ -2360,7 +2461,7 @@ lbl_0da3:
   jc    lbl_0e07
   jb    p3.4, lbl_0db7
   jb    p3.3, lbl_0db7
-  mov   r0, #0x5c
+  mov   r0, #dat_5c
   mov   @r0, #0x10
   ljmp  lbl_0e1b
 lbl_0db7:
@@ -2372,7 +2473,7 @@ lbl_0dbb:
   mov   r0, #0x62
   mov   a, @r0
   jnz   lbl_0dbb
-  mov   r0, #0x5c
+  mov   r0, #dat_5c
   mov   @r0, #0x20
   sjmp  lbl_0e1b
 lbl_0dcc:
@@ -2389,7 +2490,7 @@ lbl_0dda:
   mov   r0, #0x62
   mov   a, @r0
   jnz   lbl_0dda
-  mov   r0, #0x5c
+  mov   r0, #dat_5c
   mov   @r0, #0x20
   sjmp  lbl_0e1b
 lbl_0de8:
@@ -2404,7 +2505,7 @@ lbl_0df2:
   mov   r0, #0x62
   mov   a, @r0
   jnz   lbl_0df2
-  mov   r0, #0x5c
+  mov   r0, #dat_5c
   mov   @r0, #0x30
   sjmp  lbl_0e1b
 lbl_0e00:
@@ -2427,7 +2528,7 @@ lbl_0e07:
   mov   a, r1
   movx  @dptr, a
 lbl_0e1b:
-  mov   r0, #0x5c
+  mov   r0, #dat_5c
   mov   a, @r0
   jz    lbl_0e47
   setb  p3.4
@@ -2515,7 +2616,7 @@ lbl_0e95:
   mov   r0, #0x5d
   mov   @r0, a
 lbl_0e9b:
-  mov   r0, #0x5a
+  mov   r0, #dat_5a
   mov   a, @r0
   jnz   lbl_0ea3
   ljmp  lbl_0fa0
@@ -2541,7 +2642,7 @@ lbl_0eb3:
   movx  a, @dptr
   mov   r0, #0x61
   mov   @r0, a
-  mov   r0, #0x5b
+  mov   r0, #dat_5b
   mov   @r0, #0x00
   mov   r0, #0x60
   mov   @r0, #0x00
@@ -2572,7 +2673,7 @@ lbl_0ef2:
   mov   r0, #0x62
   mov   a, @r0
   jnz   lbl_0eec
-  mov   r0, #0x5b
+  mov   r0, #dat_5b
   mov   @r0, #0x02
   sjmp  lbl_0f1f
 lbl_0efd:
@@ -2588,7 +2689,7 @@ lbl_0f0d:
   mov   r0, #0x62
   mov   a, @r0
   jnz   lbl_0f18
-  mov   r0, #0x5b
+  mov   r0, #dat_5b
   mov   @r0, #0x03
   sjmp  lbl_0f1f
 lbl_0f18:
@@ -2598,12 +2699,12 @@ lbl_0f1a:
   inc   @r0
   sjmp  lbl_0ecf
 lbl_0f1f:
-  mov   r0, #0x5a
+  mov   r0, #dat_5a
   dec   @r0
-  mov   r0, #0x5a
+  mov   r0, #dat_5a
   mov   a, @r0
   jnz   lbl_0f3c
-  mov   r0, #0x5b
+  mov   r0, #dat_5b
   mov   a, @r0
   jz    lbl_0f3c
   setb  p3.4
@@ -2668,14 +2769,14 @@ lbl_0f87:
   mov   r0, #0x62
   mov   a, @r0
   jnz   lbl_0f92
-  mov   r0, #0x5b
+  mov   r0, #dat_5b
   mov   @r0, #0x02
   sjmp  lbl_0f1f
 lbl_0f92:
   sjmp  lbl_0f7e
   ljmp  lbl_0e9b
 lbl_0f97:
-  mov   r0, #0x5b
+  mov   r0, #dat_5b
   mov   @r0, #0x01
   sjmp  lbl_0f1f
 lbl_0f9d:
@@ -2686,7 +2787,7 @@ lbl_0fa0:
   jz    lbl_0fb2
   mov   r0, #0x68
   mov   @r0, #0x00
-  mov   r0, #0x5a
+  mov   r0, #dat_5a
   mov   @r0, #0x00
   clr   a
   mov   dptr, #OEPBCTX_2
@@ -2694,18 +2795,18 @@ lbl_0fa0:
 lbl_0fb2:
   ret
 
-dat_0fb3:
+cdat_0fb3:
   .byte 0x12, 0x01, 0x10, 0x01
   .byte 0x00, 0x00, 0x00, 0x08
   .byte 0x51, 0x04, 0x01, 0xe0
   .byte 0x08, 0x02, 0x01, 0x02
   .byte 0x00, 0x01
 
-dat_0fc5:
+cdat_0fc5:
   .byte 0x09, 0x02, 0x00, 0x00
   .byte 0x01, 0x01, 0x00
 
-dat_0fcc:
+cdat_0fcc:
   .byte 0x80, 0x32, 0x09, 0x04
   .byte 0x00, 0x00, 0x02, 0xff
   .byte 0x00, 0x00, 0x00, 0x07
@@ -2714,7 +2815,7 @@ dat_0fcc:
   .byte 0x02, 0x02, 0x20, 0x00
   .byte 0x00
 
-dat_0fe5:
+cdat_0fe5:
   .byte 0x04, 0x03, 0x09, 0x04
   .byte 0x24, 0x03, 0x54, 0x00
   .byte 0x65, 0x00, 0x78, 0x00
