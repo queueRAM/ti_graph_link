@@ -51,7 +51,24 @@ FUNADR = 0xffff
 
 dat_20_start:
 dat_20_end:
-.word 0, 0, 0, 0, 0, 0, 0, 0
+
+i2c_addr: ; 0x20
+.byte 0
+
+dat_21:
+.byte 0
+
+eeprom_addr:
+.word 0
+
+dat_24:
+.word 0
+
+dat_26:
+.byte 0
+.word 0
+
+.byte 0, 0, 0, 0, 0, 0, 0
 
 .word 0, 0, 0, 0, 0
 .byte 0
@@ -328,32 +345,33 @@ lbl_0128:
   push  acc
   ret
 
+; inputs: r5, r6, r7
 fcn_0132:
-  lcall fcn_01ef
+  lcall fcn_01ef    ; a = fcn_01ef(r5, r6, r7)
   ljmp  lbl_0138
 lbl_0138:
   jnb   acc.0, lbl_0142
   jb    acc.3, lbl_0140
-  mov   a, @r0
+  mov   a, @r0      ; if (a == 0x01) return *r0;
   ret
 lbl_0140:
-  mov   a, @r1
+  mov   a, @r1      ; else if (a == 0x09) return *r1;
   ret
 lbl_0142:
   jnb   acc.1, lbl_014c
   jb    acc.3, lbl_014a
-  movx  a, @r0
+  movx  a, @r0      ; else if (a == 0x02) return *(xdat)r0;
   ret
 lbl_014a:
-  movx  a, @r1
+  movx  a, @r1      ; else if (a == 0x0a) return *(xdat)r1;
   ret
 lbl_014c:
   jnb   acc.2, lbl_0151
-  movx  a, @dptr
+  movx  a, @dptr    ; else if (a == 0x04) return *(xdat)dptr;
   ret
 lbl_0151:
   clr   a
-  movc  a, @a+dptr
+  movc  a, @a+dptr  ; else return *(cdat)dptr;
   ret
 
 fcn_0154:
@@ -468,6 +486,12 @@ lbl_01e5:
 
   ljmp  fcn_01ef ; TODO: why?
 
+; switch (r7) {
+;   case 0: r0 = r5;       a = 1; break;
+;   case 1: dptr = r5, r6; a = 4; break;
+;   case 2: dptr = r5, r6; a = 16; break;
+;   default: r0 = r5;      a = 2; break;
+; }
 fcn_01ef:
   cjne  r7, #0x00, lbl_01f7
   mov   a, r5
@@ -1828,7 +1852,7 @@ lbl_0a0f:
   jz    lbl_0a1c
   mov   r0, #0x30
   mov   a, @r0
-  cjne  a, #0x40, 0x0a2a
+  cjne  a, #0x40, lbl_0a2a
 lbl_0a1c:
   mov   r0, #0x2f
   mov   a, @r0
@@ -1839,6 +1863,7 @@ lbl_0a1c:
   addc  a, #0xff
   mov   @r0, a
   ljmp  lbl_0abe
+lbl_0a2a:
   mov   r0, #0x38
   mov   a, @r0
   mov   r0, #0x30
@@ -2039,9 +2064,10 @@ fcn_0b44:
   movx  @dptr, a
   mov   r0, #0x4e
   mov   a, @r0
-  cjne  a, #0x02, 0x0b54
+  cjne  a, #0x02, lbl_0b54
   lcall fcn_0648
   sjmp  lbl_0b5b
+lbl_0b54:
   mov   dptr, #OEPCNFG_0
   movx  a, @dptr
   orl   a, #0x08
@@ -2109,7 +2135,7 @@ fcn_0b67:
   movx  @dptr, a
   mov   dptr, #0xff01 ; 0xff00-0xff07: setup packet
   movx  a, @dptr
-  cjne  a, #0x81, 0x0be8
+  cjne  a, #0x81, lbl_0be8
   mov   dptr, #0xff02 ; 0xff00-0xff07: setup packet
   movx  a, @dptr
   mov   r0, #0x52
@@ -2134,9 +2160,10 @@ lbl_0bd6:
 lbl_0be2:
   lcall fcn_064b
   ljmp  lbl_0c9f
+lbl_0be8:
   mov   dptr, #0xff01 ; 0xff00-0xff07: setup packet
   movx  a, @dptr
-  cjne  a, #0x82, 0x0c32
+  cjne  a, #0x82, lbl_0c32
   mov   dptr, #0xff03 ; 0xff00-0xff07: setup packet
   movx  a, @dptr
   add   a, #0xdf
@@ -2178,9 +2205,10 @@ lbl_0c20:
   mov   @r0, a
   lcall fcn_064b
   sjmp  lbl_0c9f
+lbl_0c32:
   mov   dptr, #0xff01 ; 0xff00-0xff07: setup packet
   movx  a, @dptr
-  cjne  a, #0x83, 0x0c4a
+  cjne  a, #0x83, lbl_0c4a
   mov   r0, #0x3e
   clr   a
   mov   @r0, a
@@ -2192,9 +2220,10 @@ lbl_0c20:
   mov   r7, a
   lcall fcn_05f5
   sjmp  lbl_0c9f
+lbl_0c4a:
   mov   dptr, #0xff01 ; 0xff00-0xff07: setup packet
   movx  a, @dptr
-  cjne  a, #0xa2, 0x0c9c
+  cjne  a, #0xa2, lbl_0c9c
   mov   a, #0x2a      ; 0b0010_1010: disable watchdog
   mov   dptr, #WDCSR
   movx  @dptr, a
@@ -2214,7 +2243,7 @@ lbl_0c20:
   mov   r6, a
   mov   r7, a
   mov   r4, #0x00
-  lcall fcn_0cea
+  lcall i2c_write_eeprom
   mov   a, r4
   jz    lbl_0c74
 lbl_0c72:
@@ -2249,6 +2278,7 @@ lbl_0c90:
   movx  @dptr, a
   lcall fcn_064b
   sjmp  lbl_0c9f
+lbl_0c9c:
   lcall fcn_0502
 lbl_0c9f:
   ret
@@ -2284,7 +2314,7 @@ lbl_0cb7:
   ret
 
 ; wait for I2C TX empty
-; return: 0 success, 1 bus error
+; return (r4): 0 success, 1 bus error
 ;
 ; while (!(*I2CSTA & 0x04)) {
 ;   kick_watchdog();
@@ -2327,121 +2357,126 @@ lbl_0ce7:
   mov   r4, #0x00       ; return 0
   ret
 
-fcn_0cea:
+; write to I2C EEPROM
+; dat_21: I2C bank
+; r7, r6: EEPROM address
+; dat_24: length
+; dat_26: source and source address
+i2c_write_eeprom: ; 0cea
   mov   dptr, #I2CSTA
   movx  a, @dptr
   anl   a, #0xfc
-  movx  @dptr, a
-  mov   r0, #0x22
+  movx  @dptr, a   ; *I2CSTA &= 0xFC  // clear SRD/SWR
+  mov   r0, #eeprom_addr
   mov   a, r7
   mov   @r0, a
   inc   r0
   mov   a, r6
-  mov   @r0, a
-  mov   r0, #0x21
+  mov   @r0, a     ; eeprom_addr = r7, r6
+  mov   r0, #dat_21
   mov   a, r4
-  mov   @r0, a
-  mov   r0, #0x24
+  mov   @r0, a     ; dat_21 = r4
+  mov   r0, #dat_24
   mov   a, @r0
   inc   r0
   orl   a, @r0
-  jnz   lbl_0d06
+  jnz   lbl_0d06   ; if (dat_24[0] == 0 && dat_24[1] == 0) return 0;
   mov   r4, #0x00
   ret
 lbl_0d06:
-  mov   r0, #0x21
+  mov   r0, #dat_21
   mov   a, @r0
   anl   a, #0x07
   add   a, acc
   orl   a, #0xa0
   mov   dptr, #I2CADR
-  movx  @dptr, a
-  mov   r0, #0x20
+  movx  @dptr, a      ; *I2CADR = (2 * (dat_21 & 0x7) | 0xa0)
+  mov   r0, #i2c_addr
   mov   @r0, a
-  mov   r0, #0x22
+  mov   r0, #eeprom_addr
   mov   a, @r0
   mov   dptr, #I2CDATO
-  movx  @dptr, a
+  movx  @dptr, a      ; *I2CDATO = eeprom_addr[0]
   lcall i2c_wait_tx_empty
   mov   a, r4
   jz    lbl_0d26
-  mov   r4, #0x01
+  mov   r4, #0x01     ; if (i2c_wait_tx_empty()) return 1;
   ret
 lbl_0d26:
-  mov   r0, #0x23
+  mov   r0, #eeprom_addr+1
   mov   a, @r0
   mov   dptr, #I2CDATO
-  movx  @dptr, a
+  movx  @dptr, a      ; *I2CDATO = eeprom_addr[1]
   lcall i2c_wait_tx_empty
   mov   a, r4
   jz    lbl_0d36
-  mov   r4, #0x01
+  mov   r4, #0x01     ; if (i2c_wait_tx_empty()) return 1;
   ret
-lbl_0d36:
+lbl_0d36:           ; while (dat_24 - 1 > 0)
   setb  c
-  mov   r0, #0x25
+  mov   r0, #dat_24+1
   mov   a, @r0
   subb  a, #0x01
   dec   r0
   mov   a, @r0
   subb  a, #0x00
   jc    lbl_0d6c
-  mov   r0, #0x26
+  mov   r0, #dat_26
   mov   a, @r0
-  mov   r7, a
+  mov   r7, a        ; r7 = dat_26
   inc   r0
   mov   a, @r0
-  mov   r6, a
+  mov   r6, a        ; r6 = dat_26+1
   inc   r0
   mov   a, @r0
-  mov   r5, a
+  mov   r5, a        ; r5 = dat_26+2
   inc   a
-  mov   @r0, a
+  mov   @r0, a       ; (dat_26+2)++
   dec   r0
   jnz   lbl_0d52
-  inc   @r0
+  inc   @r0          ; (dat_26+1)++
 lbl_0d52:
   lcall fcn_0132
   mov   dptr, #I2CDATO
-  movx  @dptr, a
+  movx  @dptr, a     ; *I2CDATO = fcn_0132()
   lcall i2c_wait_tx_empty
   mov   a, r4
   jz    lbl_0d62
-  mov   r4, #0x01
+  mov   r4, #0x01    ; if (i2c_wait_tx_empty()) return 1;
   ret
 lbl_0d62:
-  mov   r0, #0x25
+  mov   r0, #dat_24+1
   mov   a, @r0
   dec   @r0
   dec   r0
   jnz   lbl_0d6a
-  dec   @r0
+  dec   @r0          ; dat_24--
 lbl_0d6a:
   sjmp  lbl_0d36
 lbl_0d6c:
   mov   dptr, #I2CSTA
   movx  a, @dptr
   orl   a, #0x01
-  movx  @dptr, a
-  mov   r0, #0x26
+  movx  @dptr, a     ; *I2CSTA |= 0x01  SWR
+  mov   r0, #dat_26
   mov   a, @r0
-  mov   r7, a
+  mov   r7, a        ; r7 = dat_26
   inc   r0
   mov   a, @r0
-  mov   r6, a
+  mov   r6, a        ; r6 = dat_26+1
   inc   r0
   mov   a, @r0
-  mov   r5, a
+  mov   r5, a        ; r5 = dat_26+1
   lcall fcn_0132
   mov   dptr, #I2CDATO
-  movx  @dptr, a
+  movx  @dptr, a     ; *I2CDATO = fcn_0132()
   lcall i2c_wait_tx_empty
   mov   a, r4
   jz    lbl_0d8d
-  mov   r4, #0x01
+  mov   r4, #0x01    ; if (i2c_wait_tx_empty()) return 1;
   ret
 lbl_0d8d:
-  mov   r4, #0x00
+  mov   r4, #0x00    ; return 0;
   ret
 
 fcn_0d90:
