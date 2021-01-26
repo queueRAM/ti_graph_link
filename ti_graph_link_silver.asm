@@ -46,64 +46,90 @@ FUNADR = 0xffff
 ;--------------------------------------------------------
 .area DSEG    (DATA)
 
-.word 0, 0, 0, 0, 0, 0, 0, 0
-.word 0, 0, 0, 0, 0, 0, 0, 0
+  .word 0, 0, 0, 0, 0, 0, 0, 0
+  .word 0, 0, 0, 0, 0, 0, 0, 0
 
 dat_20_start:
 dat_20_end:
 
 i2c_addr: ; 0x20
-.byte 0
+  .byte 0
 
 dat_21:
-.byte 0
+  .byte 0
 
 eeprom_addr:
-.word 0
+  .word 0
 
 dat_24:
-.word 0
+  .word 0
 
 dat_26:
-.byte 0
-.word 0
+  .byte 0
+dat_27:   ; TODO: sometimes this is word, sometimes byte?
+  .word 0
 
-.byte 0, 0, 0, 0, 0, 0, 0
+  .byte 0, 0, 0, 0, 0, 0, 0
 
-.word 0, 0, 0, 0, 0
-.byte 0
+  .word 0, 0, 0, 0, 0
+  .byte 0
 
 bss_start:
 i2c_speed: ; 0x3b
-.byte 0
+  .byte 0
 
-.word 0, 0
-.word 0, 0, 0, 0, 0, 0, 0, 0
+  .word 0
 
-.byte 0, 0, 0
+dat_3e:
+  .word 0
+
+  .word 0, 0, 0
+  .byte 0
+
+dat_47:
+  .byte 0
+
+  .word 0, 0, 0, 0
+
+  .byte 0, 0, 0
 
 dat_53:
-.byte 0
-.byte 0, 0, 0, 0, 0, 0
+  .byte 0
+  .byte 0, 0, 0, 0, 0
+
+dat_59:
+  .byte 0
 
 dat_5a:
-.byte 0
+  .byte 0
 
 dat_5b:
-.byte 0
+  .byte 0
 
 dat_5c:
-.byte 0
-.byte 0, 0, 0, 0, 0
+  .byte 0
+
+dat_5d:
+  .byte 0
+
+  .byte 0, 0, 0, 0
 bss_end:
 
-dat_62_start:
-.byte 0, 0
+data_start:
+dat_62:
+  .word 0
+
 dat_64:
-.byte 0
+  .byte 0
+
 dat_65:
-.byte 0, 0, 0, 0
-dat_62_end:
+  .byte 0
+
+  .byte 0, 0
+
+dat_68:
+  .byte 0
+data_end:
 
 stack_start:
 
@@ -299,7 +325,7 @@ cdat_00ed:
   .byte dat_20_start, dat_20_end
   .word cdat_027e
 cdat_00f1:
-  .byte dat_62_start, dat_62_end
+  .byte data_start, data_end
   .word cdat_027e
 cdat_00f5:
   .word xdat_0001, cdat_0285_start, cdat_0285_end
@@ -311,14 +337,16 @@ cdat_0101:
 loop_forever: ; 0107
   sjmp  loop_forever
 
+; jump table lookup
+; dptr: points to jump table
+;   format: u16 jump_addr, u8 value
+; a: value to compare
 fcn_0109:
   pop   dph
   pop   dpl
   mov   b, a
 lbl_010f:
   clr   a
-; fall through
-fcn_0110:
   movc  a, @a+dptr
   jnz   lbl_011c
   mov   a, #0x01
@@ -518,6 +546,27 @@ lbl_020b:
 
   ljmp  fcn_0213 ; TODO: why?
 
+; inputs: r7, r5, r6, dpl, dph
+; switch (r7) {
+;   case 0x00:
+;     r0 = r5 + dpl;
+;     a = 0x01;
+;     return;
+;   case 0x01:
+;     dpl = r5 + dpl;
+;     dph = r6 + dph;
+;     a = 0x04;
+;     return;
+;   case 0x02:
+;     dpl = r5 + dpl;
+;     dph = r6 + dph;
+;     a = 0x10;
+;     return;
+;   default:
+;     r0 = r5 + dpl;
+;     a = 0x02;
+;     return;
+; }
 fcn_0213:
   cjne  r7, #0x00, lbl_021d
   mov   a, r5
@@ -598,7 +647,8 @@ fcn_027c:
   jmp   @a+dptr
 
 cdat_027e:
-  .byte 0x00, 0xfa, 0x00, 0x00, 0x00, 0x00, 0x00
+  .word 0x00fa
+  .byte 0x00, 0x00, 0x00, 0x00, 0x00
 cdat_0285_start:
 cdat_0285_end:
   .byte 0x08
@@ -628,7 +678,7 @@ fcn_02c9:
   mov   r5, #0x00
   ret
 
-exti_isr:
+exti_isr: ; 02ce
   push  acc
   push  b
   push  dpl
@@ -657,54 +707,52 @@ exti_isr:
   mov   dptr, #VECINT
   movx  a, @dptr
   lcall fcn_0109
-  rr    a
-  add   a, r0
-  dec   a
-  rr    a
-  dec   r5
-  ret
-  rr    a
-  orl   a, @r0
-  reti
-  rr    a
-  anl   a, @r0
-  addc  a, r0
-  rr    a
-  xrl   a, @r1
-  addc  a, r2
-  rr    a
-  mov   r0, #0x3c
-  rr    a
-  mov   0x3e, r4
-  rr    a
-  addc  a, r4
-  orl   a, #0x03
-  reti
-  orl   a, @r0
-  nop
-  nop
-  rr    a
-  mul   ab
+  ; jump table
+  .word lbl_0328
+  .byte 0x14
+  .word lbl_031d
+  .byte 0x22
+  .word lbl_0346
+  .byte 0x32
+  .word lbl_0356
+  .byte 0x38
+  .word lbl_0367
+  .byte 0x3a
+  .word lbl_0378
+  .byte 0x3c
+  .word lbl_038c
+  .byte 0x3e
+  .word lbl_033c
+  .byte 0x44
+  .word lbl_0332
+  .byte 0x46
+  .word 0x0000    ; default case
+  .word lbl_03a4
+lbl_031d:
   lcall fcn_0b5c
   clr   a
   mov   dptr, #VECINT
   movx  @dptr, a
   ljmp  lbl_03aa
+lbl_0328:
   lcall fcn_0b5d
   clr   a
   mov   dptr, #VECINT
   movx  @dptr, a
   sjmp  lbl_03aa
+lbl_0332:
   lcall fcn_0b44
   clr   a
   mov   dptr, #VECINT
   movx  @dptr, a
   sjmp  lbl_03aa
+lbl_033c:
   lcall fcn_0b2c
   clr   a
   mov   dptr, #VECINT
   movx  @dptr, a
   sjmp  lbl_03aa
+lbl_0346:
   lcall fcn_0ae0
   mov   a, #0x04
   mov   dptr, #USBSTA
@@ -713,6 +761,7 @@ exti_isr:
   mov   dptr, #VECINT
   movx  @dptr, a
   sjmp  lbl_03aa
+lbl_0356:
   mov   r0, #dat_64
   mov   @r0, #0x00
   mov   a, #0x20
@@ -722,6 +771,7 @@ exti_isr:
   mov   dptr, #VECINT
   movx  @dptr, a
   sjmp  lbl_03aa
+lbl_0367:
   mov   r0, #dat_64
   mov   @r0, #0x01
   mov   a, #0x40
@@ -731,6 +781,7 @@ exti_isr:
   mov   dptr, #VECINT
   movx  @dptr, a
   sjmp  lbl_03aa
+lbl_0378:
   mov   r0, #dat_64
   mov   @r0, #0x00
   lcall fcn_048e
@@ -741,6 +792,7 @@ exti_isr:
   mov   dptr, #VECINT
   movx  @dptr, a
   sjmp  lbl_03aa
+lbl_038c:
   mov   r0, #dat_64
   mov   @r0, #0x00
   mov   a, #0x02
@@ -754,6 +806,7 @@ exti_isr:
   orl   a, #0x20
   movx  @dptr, a
   sjmp  lbl_03aa
+lbl_03a4:
   mov   a, #0xff
   mov   dptr, #VECINT
   movx  @dptr, a
@@ -860,8 +913,8 @@ lbl_0448:          ; while (dat_65 != 0x02) {
   mov   r0, #dat_65
   mov   a, @r0
   xrl   a, #0x02
-  jz    lbl_0451   ; }
-  sjmp  lbl_0448
+  jz    lbl_0451
+  sjmp  lbl_0448   ; }
 lbl_0451:
   lcall fcn_0d90
   mov   r0, #dat_5c
@@ -908,7 +961,7 @@ fcn_048e:
   movx  a, @dptr
   orl   a, #0x01   ; WDT: kick the watchdog
   movx  @dptr, a
-  mov   r0, #0x3e
+  mov   r0, #dat_3e
   mov   a, #0xff
   mov   @r0, a
   inc   r0
@@ -927,7 +980,7 @@ fcn_048e:
   mov   @r0, a
   inc   r0
   mov   @r0, a
-  mov   r0, #0x47
+  mov   r0, #dat_47
   clr   a
   mov   @r0, a
   inc   r0
@@ -1058,7 +1111,7 @@ lbl_0563:
   mov   a, @r0
   mov   r0, #0x20
   mov   @r0, a
-  mov   r0, #0x3e
+  mov   r0, #dat_3e
   mov   a, #0xff
   mov   @r0, a
   inc   r0
@@ -1075,7 +1128,7 @@ lbl_0582:
   dec   r0
   orl   a, @r0
   jnz   lbl_059a
-  mov   r0, #0x3e
+  mov   r0, #dat_3e
   clr   a
   mov   @r0, a
   inc   r0
@@ -1084,7 +1137,7 @@ lbl_0582:
   mov   @r0, #0x01
   sjmp  lbl_05a5
 lbl_059a:
-  mov   r0, #0x3e
+  mov   r0, #dat_3e
   mov   a, #0xff
   mov   @r0, a
   inc   r0
@@ -1182,7 +1235,7 @@ fcn_05f5:
   mov   a, r7
   dec   r0
   mov   @r0, a
-  mov   r0, #0x3e
+  mov   r0, #dat_3e
   mov   a, @r0
   mov   r5, a
   inc   r0
@@ -1228,7 +1281,7 @@ fcn_064b:
   movx  a, @dptr
   orl   a, #0x01   ; WDT: kick the watchdog
   movx  @dptr, a
-  mov   r0, #0x3e
+  mov   r0, #dat_3e
   mov   a, #0xff
   mov   @r0, a
   inc   r0
@@ -1320,7 +1373,7 @@ lbl_06dd:
   movx  @dptr, a
   ret
   lcall fcn_0518
-  mov   r0, #0x3e
+  mov   r0, #dat_3e
   clr   a
   mov   @r0, a
   inc   r0
@@ -1341,21 +1394,21 @@ lbl_06f9:
   movc  a, @a+dptr
   mov   r4, a
   mov   a, r7
-  add   a, #0x40 ; 0xF840 + r7
+  add   a, #0x40 ; 0xf840 + r7
   mov   dpl, a
   clr   a
-  addc  a, #0xf8 ; 0xF840 + r7
+  addc  a, #0xf8 ; 0xf840 + r7
   mov   dph, a
   mov   a, r4
   movx  @dptr, a
   inc   r7
   sjmp  lbl_06f9
 lbl_0713:
-  mov   r0, #0x27
+  mov   r0, #dat_27
   mov   a, r7
   mov   @r0, a
   lcall fcn_0518
-  mov   r0, #0x3e
+  mov   r0, #dat_3e
   clr   a
   mov   @r0, a
   inc   r0
@@ -1377,14 +1430,14 @@ lbl_072c:
   add   a, #0x40
   mov   dpl, a
   clr   a
-  addc  a, #0xf8
+  addc  a, #0xf8 ; 0xf840 + r7
   mov   dph, a
   mov   a, r4
   movx  @dptr, a
   inc   r7
   sjmp  lbl_072c
 lbl_0746:
-  mov   r0, #0x27
+  mov   r0, #dat_27
   mov   a, r7
   mov   @r0, a
   mov   a, #0x20
@@ -1394,13 +1447,13 @@ lbl_0746:
   mov   dptr, #0xf843 ; 0xf800-0xfeef: 2k data
   movx  @dptr, a
   lcall fcn_0518
-  mov   r0, #0x3e
+  mov   r0, #dat_3e
   clr   a
   mov   @r0, a
   inc   r0
   mov   @r0, #0x20
   mov   r5, #0x40
-  mov   r6, #0xf8
+  mov   r6, #0xf8     ; r6, r5 = 0xf840
   mov   r7, #0x01
   lcall fcn_05f5
   mov   r0, #0x28
@@ -1434,7 +1487,7 @@ lbl_0776:
   mov   r7, a
   sjmp  lbl_0776
 lbl_0790:
-  mov   r0, #0x27
+  mov   r0, #dat_27
   mov   a, r7
   mov   @r0, a
   inc   r0
@@ -1459,7 +1512,7 @@ lbl_0790:
   mov   r7, #0x02
   ljmp  fcn_05f5
   lcall fcn_0518
-  mov   r0, #0x3e
+  mov   r0, #dat_3e
   clr   a
   mov   @r0, a
   inc   r0
@@ -1491,7 +1544,7 @@ lbl_07d7:
   mov   @r0, a
 lbl_07e3:
   lcall fcn_0518
-  mov   r0, #0x3e
+  mov   r0, #dat_3e
   clr   a
   mov   @r0, a
   inc   r0
@@ -1502,7 +1555,7 @@ lbl_07e3:
   mov   r7, a
   ljmp  fcn_05f5
   lcall fcn_0518
-  mov   r0, #0x3e
+  mov   r0, #dat_3e
   clr   a
   mov   @r0, a
   inc   r0
@@ -1515,9 +1568,9 @@ lbl_07e3:
   mov   dptr, #0xff04 ; 0xff00-0xff07: setup packet
   movx  a, @dptr
   anl   a, #0x0f
-  mov   r0, #0x27
+  mov   r0, #dat_27
   mov   @r0, a
-  mov   r0, #0x27
+  mov   r0, #dat_27
   mov   a, @r0
   jnz   lbl_084d
   mov   dptr, #0xff04 ; 0xff00-0xff07: setup packet
@@ -1544,7 +1597,7 @@ lbl_0830:
   anl   a, #0x1f
   mov   @r0, a
   lcall fcn_0518
-  mov   r0, #0x3e
+  mov   r0, #dat_3e
   clr   a
   mov   @r0, a
   inc   r0
@@ -1556,16 +1609,16 @@ lbl_0830:
   lcall fcn_05f5
   sjmp  lbl_08ab
 lbl_084d:
-  mov   r0, #0x27
+  mov   r0, #dat_27
   dec   @r0
-  mov   r0, #0x27
+  mov   r0, #dat_27
   mov   a, @r0
   add   a, #0xfd
   jc    lbl_0890
-  mov   r0, #0x27
+  mov   r0, #dat_27
   mov   a, @r0
   jnz   lbl_0874
-  mov   r0, #0x27
+  mov   r0, #dat_27
   mov   a, @r0
   mov   b, #0x08
   mul   ab
@@ -1580,11 +1633,11 @@ lbl_084d:
   mov   @r0, a
   sjmp  lbl_0890
 lbl_0874:
-  mov   r0, #0x27
+  mov   r0, #dat_27
   mov   a, @r0
   dec   a
   jnz   lbl_0890
-  mov   r0, #0x27
+  mov   r0, #dat_27
   mov   a, @r0
   mov   b, #0x08
   mul   ab
@@ -1606,7 +1659,7 @@ lbl_0890:
   anl   a, #0x1f
   mov   @r0, a
   lcall fcn_0518
-  mov   r0, #0x3e
+  mov   r0, #dat_3e
   clr   a
   mov   @r0, a
   inc   r0
@@ -2209,7 +2262,7 @@ lbl_0c32:
   mov   dptr, #0xff01 ; 0xff00-0xff07: setup packet
   movx  a, @dptr
   cjne  a, #0x83, lbl_0c4a
-  mov   r0, #0x3e
+  mov   r0, #dat_3e
   clr   a
   mov   @r0, a
   inc   r0
@@ -2554,7 +2607,7 @@ lbl_0e07:
   movx  a, @dptr
   xrl   a, #0x80
   jnz   lbl_0e07
-  mov   r0, #0x59
+  mov   r0, #dat_59
   mov   a, @r0
   inc   @r0
   mov   dpl, a
@@ -2575,7 +2628,7 @@ lbl_0e1b:
   clr   a
   mov   dptr, #IEPBCTX_1
   movx  @dptr, a
-  mov   r0, #0x59
+  mov   r0, #dat_59
   mov   @r0, #0x00
   mov   r0, #0x62
   mov   @r0, #0x08
@@ -2591,17 +2644,17 @@ lbl_0e44:
 lbl_0e46:
   ret
 lbl_0e47:
-  mov   r0, #0x59
+  mov   r0, #dat_59
   mov   a, @r0
   clr   c
   mov   r0, #0x50
   subb  a, @r0
   jc    lbl_0e5b
-  mov   r0, #0x59
+  mov   r0, #dat_59
   mov   a, @r0
   mov   dptr, #IEPBCTX_1
   movx  @dptr, a
-  mov   r0, #0x59
+  mov   r0, #dat_59
   mov   @r0, #0x00
 lbl_0e5b:
   mov   r0, #0x54
@@ -2639,16 +2692,16 @@ lbl_0e82:
   movx  a, @dptr
   xrl   a, #0x80
   jnz   lbl_0e82
-  mov   r0, #0x59
+  mov   r0, #dat_59
   mov   a, @r0
   mov   dptr, #IEPBCTX_1
   movx  @dptr, a
-  mov   r0, #0x59
+  mov   r0, #dat_59
   mov   @r0, #0x00
 lbl_0e95:
-  mov   r0, #0x68
+  mov   r0, #dat_68
   mov   a, @r0
-  mov   r0, #0x5d
+  mov   r0, #dat_5d
   mov   @r0, a
 lbl_0e9b:
   mov   r0, #dat_5a
@@ -2664,7 +2717,7 @@ lbl_0ead:
   jb    p3.3, lbl_0eb3
   ljmp  lbl_0f74
 lbl_0eb3:
-  mov   r0, #0x5d
+  mov   r0, #dat_5d
   mov   a, @r0
   inc   @r0
   mov   r5, #0x00
@@ -2748,7 +2801,7 @@ lbl_0f1f:
   movx  a, @dptr
   orl   a, #0x08
   movx  @dptr, a
-  mov   r0, #0x68
+  mov   r0, #dat_68
   mov   @r0, #0x00
   ret
 lbl_0f3c:
@@ -2784,9 +2837,9 @@ lbl_0f63:
   jnb   p3.4, lbl_0f69
   jb    p3.3, lbl_0f72
 lbl_0f69:
-  mov   r0, #0x5d
+  mov   r0, #dat_5d
   mov   a, @r0
-  mov   r0, #0x68
+  mov   r0, #dat_68
   mov   @r0, a
   ljmp  lbl_0d99
 lbl_0f72:
@@ -2817,10 +2870,10 @@ lbl_0f97:
 lbl_0f9d:
   ljmp  lbl_0e9b
 lbl_0fa0:
-  mov   r0, #0x5d
+  mov   r0, #dat_5d
   mov   a, @r0
   jz    lbl_0fb2
-  mov   r0, #0x68
+  mov   r0, #dat_68
   mov   @r0, #0x00
   mov   r0, #dat_5a
   mov   @r0, #0x00
