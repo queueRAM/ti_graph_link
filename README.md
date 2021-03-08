@@ -14,7 +14,10 @@ The "A" version uses a Cypress CY7C64013 chipset and was manufactured from somet
 Some info about the "A" TI Silver Link is documented here: http://merthsoft.com/linkguide/usbdevices/SilverLink%20USB.txt
 ![Silver Link "A" CY7C64013](https://user-images.githubusercontent.com/129774/110289584-7d60fa80-7f9e-11eb-8a68-530d083bfea7.png)
 
-### Hardware List
+### Schematic
+
+Full schematic is included in the repository as ["A" Rev 1 PDF](https://raw.githubusercontent.com/queueRAM/ti_graph_link/main/schematics/ti_silver_link_a/ti_silver_link_a_rev1.pdf) or KiCad.
+![Silver Link "A" Schematic](https://user-images.githubusercontent.com/129774/110290338-89998780-7f9f-11eb-9bf9-3d90b9c0d758.png)
 
 * `D1`: `D3G` Rohm Schottky barrier diode [RB471E (PDF)](http://rohmfs.rohm.com/en/products/databook/datasheet/discrete/diode/schottky_barrier/rb471et148-e.pdf)
 * `L4`, `L4`: `2R7` 2.7µH inductor
@@ -43,7 +46,9 @@ Ring (white) | P0[1] | 13
 
 ![Silver Link "B" TUSB3410](https://user-images.githubusercontent.com/129774/110289260-09265700-7f9e-11eb-9754-fe21131d1783.png)
 
-### Hardware List
+### Schematic
+Full schematic is included in the repository as ["B" Rev 1 PDF](https://raw.githubusercontent.com/queueRAM/ti_graph_link/main/schematics/ti_silver_link_b/ti_silver_link_b_rev1.pdf) or KiCad.
+![Silver Link "B" Schematic](https://user-images.githubusercontent.com/129774/110291238-8d79d980-7fa0-11eb-80aa-5f2144bb5ef8.png)
 
 * `D1`: `D3G` Rohm Schottky barrier diode [RB471E (PDF)](http://rohmfs.rohm.com/en/products/databook/datasheet/discrete/diode/schottky_barrier/rb471et148-e.pdf)
 * `D2`: `3F` Chenmko Schottky barrier diode [CH461FGP (PDF)](http://www.chenmko.com.tw/en/data/goods/201107/1310112518k0vqy.pdf)
