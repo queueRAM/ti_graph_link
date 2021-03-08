@@ -8,6 +8,7 @@ ASFLAGS = -lops
 TARGET = ti_graph_link_silver
 
 all: $(TARGET).bin
+	@sha1sum -c $(TARGET).sha1 || echo "Build succeeded, but does not match."
 
 ASM_FILES = ti_graph_link_silver.asm
 REL_FILES = $(ASM_FILES:.asm=.rel)
