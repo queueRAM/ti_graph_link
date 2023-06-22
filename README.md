@@ -14,7 +14,7 @@ The "A" version uses a Cypress CY7C64013 chipset and was manufactured from somet
 Some info about the "A" TI Silver Link is documented here: http://merthsoft.com/linkguide/usbdevices/SilverLink%20USB.txt
 ![Silver Link "A" CY7C64013](https://user-images.githubusercontent.com/129774/110289584-7d60fa80-7f9e-11eb-8a68-530d083bfea7.png)
 
-### Schematic
+### Silver Link "A": Schematic
 
 Full schematic is included in the repository as ["A" Rev 1 PDF](https://raw.githubusercontent.com/queueRAM/ti_graph_link/main/schematics/ti_silver_link_a/ti_silver_link_a_rev1.pdf) or KiCad.
 ![Silver Link "A" Schematic](https://user-images.githubusercontent.com/129774/110290338-89998780-7f9f-11eb-9bf9-3d90b9c0d758.png)
@@ -46,7 +46,7 @@ Ring (white) | P0[1] | 13
 
 ![Silver Link "B" TUSB3410](https://user-images.githubusercontent.com/129774/110289260-09265700-7f9e-11eb-9754-fe21131d1783.png)
 
-### Schematic
+### Silver Link "B": Schematic
 Full schematic is included in the repository as ["B" Rev 1 PDF](https://raw.githubusercontent.com/queueRAM/ti_graph_link/main/schematics/ti_silver_link_b/ti_silver_link_b_rev1.pdf) or KiCad.
 ![Silver Link "B" Schematic](https://user-images.githubusercontent.com/129774/110291238-8d79d980-7fa0-11eb-80aa-5f2144bb5ef8.png)
 
@@ -81,17 +81,54 @@ OFFSET | TYPE                 | SIZE   | VALUE | DESCRIPTION
 0x0006 | Program              | 0x1400 |       | Binary application code
 0x1406 | Data Type            | 1      | 0x00  | End of header
 
-### Firmware
+### Silver Link "B": Firmware
 TUSB3410 contains an 8052 microprocessor. The application code contained within the EEPROM
 is responsible for receiving commands over USB and communicating with the calculator over its
 PORT3 GPIO.
 
-### Building
-The disassembled firmware can be build with [sdcc](http://sdcc.sourceforge.net)
+### Building Firmware
+The disassembled firmware can be built using [sdcc](http://sdcc.sourceforge.net) and the included makefile build system. The resulting .eep file should be bit-compatible with the EEPROM contents. Build dependencies are:
+ * [sdcc](http://sdcc.sourceforge.net): versions 3.8.0 through 4.2.0 have been tested
+ * [GNU make](https://www.gnu.org/software/make/)
+ * Python 3: for the script which generates the Autoexec header and checksum
 
 ```sh
 $ make
 sdas8051 -lops ti_graph_link_silver.asm
 sdcc -mmcs51 --code-size 0x1400 ti_graph_link_silver.rel -o ti_graph_link_silver.hex
 makebin -p ti_graph_link_silver.hex ti_graph_link_silver.bin
+./tools/generate_eeprom.py ti_graph_link_silver.bin ti_graph_link_silver.eep
+ti_graph_link_silver.bin: OK
 ```
+
+TI USB Graph Link Breadboard Edition
+------------------------------------
+
+User ["okrayo" on the Cemetech forums](https://www.cemetech.net/forum/viewtopic.php?p=302975#302975) recreated the TI USB Graph Link "B" on a breadboard using a TUSB3410 and through-hole alternatives for the power supply, transistors, diodes, and passive components. Since this uses the same USB chipset and firmware as the official Silver USB Graph-Link, this works with existing SW and TI graphing calculators with 2.5mm data port.
+
+![TI USB Graph Link Breadboard Edition](https://i.postimg.cc/C5YYbrcC/Breadboard2.jpg)
+
+## Component Replacements
+
+The table below enumerates the part replacements that "okrayo" used in the design relative to the original "B" schematic. In addition to these parts, the following modifications were made:
+ - Added 0.1µF decoupling capacitor between 1V8 and GND
+ - Removed the `L2`/`C9` `L1`/`C10` filter on tip and ring connections
+ - Added LED + 330Ω resistor on 3V3
+ - Left 24LC256 `WP` pin disconnected to prevent inadvertent writes
+
+RefDes  | Description          | "B" Part    | Breadboard Part
+--------|----------------------|-------------|------------------
+C1/C5   | Xtal caps            | 33pF SMT    | 22pF through-hole
+D2      | Suspend Diode        | BAS16W      | [1N4148](https://en.wikipedia.org/wiki/1N4148_signal_diode)
+R8/R9   | USB D+/D- Res.       | 22Ω         | 27Ω
+R20/R21 | 1V8 voltage divider  | 90.5k/100kΩ | 15k/18kΩ
+R24     | VREGEN Resistor      | 32.4kΩ      | 33kΩ
+U2      | 3.3V volt. regulator | TPS71533    | [MCP17003302E](https://www.microchip.com/en-us/product/MCP1700)
+U4      | Transistors          | IMH8A       | 2x [PN2222A](https://www.onsemi.com/pdf/datasheet/p2n2222a-d.pdf)
+U1      | EEPROM               | 24LC64      | [24LC256](https://www.microchip.com/en-us/product/24LC256)
+D1      | Schottky Diodes      | RB471E      | 2x [MBR150](https://www.onsemi.com/pdf/datasheet/mbr150-d.pdf)
+
+## TI USB Graph Link Breadboard Edition: Schematic
+
+Full schematic is included in the repository as [TI Graph-Link "okrayo" Breadboard PDF](https://raw.githubusercontent.com/queueRAM/ti_graph_link/main/schematics/ti_silver_link_breadboard/ti_silver_link_okrayo_breadboard_rev1.pdf) or KiCad.
+!["okrayo" Breadboard Schematic](https://user-images.githubusercontent.com/129774/250444921-a097a16c-1331-4d63-ada5-cb0566d520d7.png)
