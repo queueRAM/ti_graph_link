@@ -47,8 +47,8 @@ Ring (white) | P0[1] | 13
 ![Silver Link "B" TUSB3410](https://user-images.githubusercontent.com/129774/110289260-09265700-7f9e-11eb-9754-fe21131d1783.png)
 
 ### Silver Link "B": Schematic
-Full schematic is included in the repository as ["B" Rev 1 PDF](https://raw.githubusercontent.com/queueRAM/ti_graph_link/main/schematics/ti_silver_link_b/ti_silver_link_b_rev1.pdf) or KiCad.
-![Silver Link "B" Schematic](https://user-images.githubusercontent.com/129774/110291238-8d79d980-7fa0-11eb-80aa-5f2144bb5ef8.png)
+Full schematic is included in the repository as ["B" Rev 2 PDF](https://raw.githubusercontent.com/queueRAM/ti_graph_link/main/schematics/ti_silver_link_b/ti_silver_link_b_rev2.pdf) or KiCad.
+![TI Silver Graph Link "B" Schematic](https://user-images.githubusercontent.com/129774/252163221-d418da84-ab88-4a8e-8d8e-176e8686b90b.png)
 
 * `D1`: `D3G` Rohm Schottky barrier diode [RB471E (PDF)](http://rohmfs.rohm.com/en/products/databook/datasheet/discrete/diode/schottky_barrier/rb471et148-e.pdf)
 * `D2`: `3F` Chenmko Schottky barrier diode [CH461FGP (PDF)](http://www.chenmko.com.tw/en/data/goods/201107/1310112518k0vqy.pdf)
@@ -130,5 +130,5 @@ D1      | Schottky Diodes      | RB471E      | 2x [MBR150](https://www.onsemi.co
 
 ## TI USB Graph Link Breadboard Edition: Schematic
 
-Full schematic is included in the repository as [TI Graph-Link "okrayo" Breadboard PDF](https://raw.githubusercontent.com/queueRAM/ti_graph_link/main/schematics/ti_silver_link_breadboard/ti_silver_link_okrayo_breadboard_rev1.pdf) or KiCad.
-!["okrayo" Breadboard Schematic](https://user-images.githubusercontent.com/129774/250444921-a097a16c-1331-4d63-ada5-cb0566d520d7.png)
+Full schematic is included in the repository as [TI Graph-Link "okrayo" Breadboard PDF](https://raw.githubusercontent.com/queueRAM/ti_graph_link/main/schematics/ti_silver_link_breadboard/ti_silver_link_okrayo_breadboard_rev2.pdf) or KiCad.
+![TI Graph Link "okrayo" Breadboard Schematic](https://user-images.githubusercontent.com/129774/252163112-9d8d1bd6-0098-4db2-9ff8-a2434928f968.png)
