@@ -50,8 +50,8 @@ Ring (white) | P0[1] | 13
 Full schematic is included in the repository as ["B" Rev 2 PDF](https://raw.githubusercontent.com/queueRAM/ti_graph_link/main/schematics/ti_silver_link_b/ti_silver_link_b_rev2.pdf) or KiCad.
 ![TI Silver Graph Link "B" Schematic](https://user-images.githubusercontent.com/129774/252163221-d418da84-ab88-4a8e-8d8e-176e8686b90b.png)
 
-* `D1`: `D3G` Rohm Schottky barrier diode [RB471E (PDF)](http://rohmfs.rohm.com/en/products/databook/datasheet/discrete/diode/schottky_barrier/rb471et148-e.pdf)
-* `D2`: `3F` Chenmko Schottky barrier diode [CH461FGP (PDF)](http://www.chenmko.com.tw/en/data/goods/201107/1310112518k0vqy.pdf)
+* `D1`: `D3G` Rohm dual Schottky barrier diode [RB471E (PDF)](http://rohmfs.rohm.com/en/products/databook/datasheet/discrete/diode/schottky_barrier/rb471et148-e.pdf)
+* `D2`: `3F` Chenmko Schottky barrier diode [CH461FGP (PDF)](http://www.chenmko.com.tw/assets/uploaded_docs/1310112518k0vqy.pdf)
 * `L1`, `L2`: `2R7` 2.7µH inductor
 * `U1`: `24LC64` 64kbit EEPROM: Microchip [24LC64 (PDF)](https://ww1.microchip.com/downloads/en/DeviceDoc/21189T.pdf)
 * `U2`: `AQI` TI LOD Regulator, 3.3V [TPS715 (PDF)](https://www.ti.com/lit/ds/symlink/tps715.pdf) (TPS71533DCKR)
@@ -119,7 +119,7 @@ The table below enumerates the part replacements that "okrayo" used in the desig
 RefDes  | Description          | "B" Part    | Breadboard Part
 --------|----------------------|-------------|------------------
 C1/C5   | Xtal caps            | 33pF SMT    | 22pF through-hole
-D2      | Suspend Diode        | BAS16W      | [1N4148](https://en.wikipedia.org/wiki/1N4148_signal_diode)
+D2      | Suspend Diode        | CH461FGP    | [1N4148](https://en.wikipedia.org/wiki/1N4148_signal_diode)
 R8/R9   | USB D+/D- Res.       | 22Ω         | 27Ω
 R20/R21 | 1V8 voltage divider  | 90.5k/100kΩ | 15k/18kΩ
 R24     | VREGEN Resistor      | 32.4kΩ      | 33kΩ
