@@ -1,3 +1,35 @@
+TI-Graph Link adapters
+----------------------
+This repository contains information about three types of TI-Graph Link adapters:
+* [TI-Graph Link serial (grey)](#ti-graph-link-serial-grey)
+* [TI-Graph Link serial (black)](#ti-graph-link-serial-black)
+* [TI USB Graph Link (silver)](#ti-usb-graph-link-silver)
+
+TI-Graph Link serial (grey)
+---------------------------
+The grey TI-Graph Link cable uses a DB-25 serial connector and works with Windows and Macintosh computers. [Merthsoft's Link Cables page](http://merthsoft.com/linkguide/cable.html#greytigl) contains some basic information about this cable.
+![TI-Graph Link serial grey](https://wiki.tiplanet.org/images/a/a4/TI-Graph_Link_cable_(GreyLink).jpg)
+
+TI-Graph Link serial (black)
+----------------------------
+The black serial Graph Link cable was the later revision with a female DB-9 connector and is only intended to work with Windows PCs.
+![TI-Graph Link serial black](https://user-images.githubusercontent.com/129774/258663837-30bb2de5-b0d8-45f1-a7e9-756d80a0ba40.jpeg)
+
+![TI-Graph Link serial black annotated PCB](https://user-images.githubusercontent.com/129774/258664112-de2d5867-72d4-42e4-83a5-6124af114b7d.jpg)
+
+## Black Link: Schematic
+Full schematic is included in the repository as [TI-Graph Link serial (black) PDF](https://raw.githubusercontent.com/queueRAM/ti_graph_link/main/schematics/ti_graph_link_serial_black/ti_graph_link_serial_black_schematic_rev1.pdf) or KiCad.
+![TI-Graph Link serial (black) Schematic](https://user-images.githubusercontent.com/129774/258664047-50a37eb7-7211-4192-ad2b-768f189efd29.png)
+
+* `CNTR`: connector for serial port control lines
+* `CR3`/`CR4`: `M1M` diodes to supply power from RTS/DTR control lines
+* `C1`/`C2`: bypass caps
+* `U1`: [LM339AM](https://www.ti.com/lit/ds/symlink/lm339.pdf) single supply quad comparator
+* `CR6`/`CR7`/`CR8`: diodes for inverting input and pullups
+* `R6`/`R10`: pullups for inverting input and link port
+* `R1`/`R2`/`R3`/`R4`/`R5`/`R7`/`R8`/`R9`: graph link circuitry around LM339
+* `JACK`: 2.5mm 3-conductor graph link jack
+
 TI USB Graph Link (Silver)
 --------------------------
 
