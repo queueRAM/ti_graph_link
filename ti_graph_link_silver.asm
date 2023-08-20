@@ -2979,7 +2979,7 @@ cdat_0fb3:
   .byte 0x08        ; bMaxPacketSize0 8
   .byte 0x51, 0x04  ; idVendor 0x0451
   .byte 0x01, 0xE0  ; idProduct 0xE001
-  .byte 0x08, 0x02  ; bcdDevice 4.08
+  .byte 0x08, 0x02  ; bcdDevice 2.08
   .byte 0x01        ; iManufacturer (String Index)
   .byte 0x02        ; iProduct (String Index)
   .byte 0x00        ; iSerialNumber (String Index)
