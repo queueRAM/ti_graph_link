@@ -79,8 +79,8 @@ Ring (white) | P0[1] | 13
 ![Silver Link "B" TUSB3410](https://user-images.githubusercontent.com/129774/110289260-09265700-7f9e-11eb-9754-fe21131d1783.png)
 
 ### Silver Link "B": Schematic
-Full schematic is included in the repository as ["B" Rev 2 PDF](https://raw.githubusercontent.com/queueRAM/ti_graph_link/main/schematics/ti_silver_link_b/ti_silver_link_b_rev2.pdf) or KiCad.
-![TI Silver Graph Link "B" Schematic](https://user-images.githubusercontent.com/129774/252163221-d418da84-ab88-4a8e-8d8e-176e8686b90b.png)
+Full schematic is included in the repository as ["B" Rev 3 PDF](https://raw.githubusercontent.com/queueRAM/ti_graph_link/main/schematics/ti_silver_link_b/ti_silver_link_b_rev3.pdf) or KiCad.
+![TI Silver Graph Link "B" Schematic rev3](https://github.com/queueRAM/ti_graph_link/assets/129774/13d7905a-3d3d-4341-b4ff-d7d78a50d133)
 
 * `D1`: `D3G` Rohm dual Schottky barrier diode [RB471E (PDF)](http://rohmfs.rohm.com/en/products/databook/datasheet/discrete/diode/schottky_barrier/rb471et148-e.pdf)
 * `D2`: `3F` Chenmko Schottky barrier diode [CH461FGP (PDF)](http://www.chenmko.com.tw/assets/uploaded_docs/1310112518k0vqy.pdf)
@@ -162,5 +162,5 @@ D1      | Schottky Diodes      | RB471E      | 2x [MBR150](https://www.onsemi.co
 
 ## TI USB Graph Link Breadboard Edition: Schematic
 
-Full schematic is included in the repository as [TI Graph-Link "okrayo" Breadboard PDF](https://raw.githubusercontent.com/queueRAM/ti_graph_link/main/schematics/ti_silver_link_breadboard/ti_silver_link_okrayo_breadboard_rev2.pdf) or KiCad.
-![TI Graph Link "okrayo" Breadboard Schematic](https://user-images.githubusercontent.com/129774/252163112-9d8d1bd6-0098-4db2-9ff8-a2434928f968.png)
+Full schematic is included in the repository as [TI Graph-Link "okrayo" Breadboard PDF](https://raw.githubusercontent.com/queueRAM/ti_graph_link/main/schematics/ti_silver_link_breadboard/ti_silver_link_okrayo_breadboard_rev3.pdf) or KiCad.
+![TI Graph Link "okrayo" Breadboard Schematic rev3](https://github.com/queueRAM/ti_graph_link/assets/129774/240750c9-9085-4b24-900c-b12c19afd32b)

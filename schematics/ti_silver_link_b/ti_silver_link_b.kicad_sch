@@ -6,8 +6,8 @@
 
   (title_block
     (title "TI Silver Graph Link \"B\"")
-    (date "2023-Jul-16")
-    (rev "2")
+    (date "2024-Feb-25")
+    (rev "3")
   )
 
   (lib_symbols

@@ -6,8 +6,8 @@
 
   (title_block
     (title "TI USB Graph Link \"okrayo\" Breadboard")
-    (date "2023-Jul-09")
-    (rev "2")
+    (date "2024-Feb-25")
+    (rev "3")
   )
 
   (lib_symbols
