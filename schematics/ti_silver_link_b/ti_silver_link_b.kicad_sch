@@ -1059,58 +1059,6 @@
         )
       )
     )
-    (symbol "power:+3.3V" (power) (pin_names (offset 0)) (in_bom yes) (on_board yes)
-      (property "Reference" "#PWR" (at 0 -3.81 0)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (property "Value" "+3.3V" (at 0 3.556 0)
-        (effects (font (size 1.27 1.27)))
-      )
-      (property "Footprint" "" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (property "Datasheet" "" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (property "ki_keywords" "global power" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (property "ki_description" "Power symbol creates a global label with name \"+3.3V\"" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (symbol "+3.3V_0_1"
-        (polyline
-          (pts
-            (xy -0.762 1.27)
-            (xy 0 2.54)
-          )
-          (stroke (width 0) (type default))
-          (fill (type none))
-        )
-        (polyline
-          (pts
-            (xy 0 0)
-            (xy 0 2.54)
-          )
-          (stroke (width 0) (type default))
-          (fill (type none))
-        )
-        (polyline
-          (pts
-            (xy 0 2.54)
-            (xy 0.762 1.27)
-          )
-          (stroke (width 0) (type default))
-          (fill (type none))
-        )
-      )
-      (symbol "+3.3V_1_1"
-        (pin power_in line (at 0 0 90) (length 0) hide
-          (name "+3.3V" (effects (font (size 1.27 1.27))))
-          (number "1" (effects (font (size 1.27 1.27))))
-        )
-      )
-    )
     (symbol "power:+3V3" (power) (pin_names (offset 0)) (in_bom yes) (on_board yes)
       (property "Reference" "#PWR" (at 0 -3.81 0)
         (effects (font (size 1.27 1.27)) hide)
@@ -1281,9 +1229,6 @@
   (junction (at 63.5 54.61) (diameter 0) (color 0 0 0 0)
     (uuid 2e2b5278-de05-40e3-9533-f4fbe5305ef1)
   )
-  (junction (at 78.74 158.75) (diameter 0) (color 0 0 0 0)
-    (uuid 406c9842-61a8-44dc-b628-15b001056b68)
-  )
   (junction (at 53.34 111.76) (diameter 0) (color 0 0 0 0)
     (uuid 46921ad0-73ea-40c1-8931-3ea7f614a6e7)
   )
@@ -1299,11 +1244,17 @@
   (junction (at 76.2 54.61) (diameter 0) (color 0 0 0 0)
     (uuid 6a60a89c-b5d7-4631-a3c3-497ff7906a84)
   )
+  (junction (at 78.74 158.75) (diameter 0) (color 0 0 0 0)
+    (uuid 6ab816a2-06a4-412d-9b36-7b104499e608)
+  )
   (junction (at 149.86 154.94) (diameter 0) (color 0 0 0 0)
     (uuid 6ebd816c-8ebc-4fe4-b724-80ba20f7c85f)
   )
   (junction (at 64.77 118.11) (diameter 0) (color 0 0 0 0)
     (uuid 7b5f53fc-f2b2-440f-bc13-ea10d44506af)
+  )
+  (junction (at 57.15 158.75) (diameter 0) (color 0 0 0 0)
+    (uuid 8880e338-a732-4f95-8840-932926685690)
   )
   (junction (at 149.86 43.18) (diameter 0) (color 0 0 0 0)
     (uuid 90e3cfe4-095a-4cc8-9bc6-4a9026038a63)
@@ -1343,9 +1294,6 @@
   )
   (junction (at 238.76 64.77) (diameter 0) (color 0 0 0 0)
     (uuid dc91d513-9001-4a28-b3f1-49cc125fbe78)
-  )
-  (junction (at 57.15 158.75) (diameter 0) (color 0 0 0 0)
-    (uuid e94bad27-d073-43c5-926e-131f78f860fb)
   )
   (junction (at 227.33 82.55) (diameter 0) (color 0 0 0 0)
     (uuid f7ebf711-6b0d-4fb5-b74b-b00bcf188bbc)
@@ -1472,13 +1420,13 @@
     (uuid 23c2f3d6-33a4-4371-a085-3c257e325b71)
   )
 
-  (wire (pts (xy 60.96 158.75) (xy 57.15 158.75))
-    (stroke (width 0) (type default))
-    (uuid 245068a5-fecc-4909-ad56-37a0b587c34d)
-  )
   (wire (pts (xy 114.3 149.86) (xy 114.3 148.59))
     (stroke (width 0) (type default))
     (uuid 261a8093-809b-4d9f-8b7f-e5ec8cf46adb)
+  )
+  (wire (pts (xy 78.74 158.75) (xy 82.55 158.75))
+    (stroke (width 0) (type default))
+    (uuid 2867bb32-556d-451f-8869-b7d874f8ff20)
   )
   (wire (pts (xy 237.49 57.15) (xy 238.76 57.15))
     (stroke (width 0) (type default))
@@ -1634,7 +1582,7 @@
     (stroke (width 0) (type default))
     (uuid 596665f0-e85b-4adc-979b-a02899f026b1)
   )
-  (wire (pts (xy 78.74 158.75) (xy 82.55 158.75))
+  (wire (pts (xy 74.93 158.75) (xy 78.74 158.75))
     (stroke (width 0) (type default))
     (uuid 59898a31-8ffc-4359-8ad7-bac00b43112f)
   )
@@ -1757,6 +1705,10 @@
   (wire (pts (xy 224.79 57.15) (xy 227.33 57.15))
     (stroke (width 0) (type default))
     (uuid 8c93e34f-8ef9-4bea-aead-b3877c411023)
+  )
+  (wire (pts (xy 57.15 158.75) (xy 60.96 158.75))
+    (stroke (width 0) (type default))
+    (uuid 8d0deeea-db20-48c7-8cdc-cec7000a3857)
   )
   (wire (pts (xy 177.8 107.95) (xy 175.26 107.95))
     (stroke (width 0) (type default))
@@ -2069,10 +2021,6 @@
   (wire (pts (xy 57.15 48.26) (xy 57.15 49.53))
     (stroke (width 0) (type default))
     (uuid fd1d2b0b-cd16-4a59-b072-5d3d4aa1b02d)
-  )
-  (wire (pts (xy 74.93 158.75) (xy 78.74 158.75))
-    (stroke (width 0) (type default))
-    (uuid fd412d5f-7fdb-43e6-98c2-b80ec0e861f0)
   )
   (wire (pts (xy 227.33 72.39) (xy 227.33 64.77))
     (stroke (width 0) (type default))
@@ -2697,7 +2645,7 @@
   (symbol (lib_id "power:GND") (at 57.15 69.85 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 00000000-0000-0000-0000-0000603c344c)
-    (property "Reference" "#PWR?" (at 57.15 76.2 0)
+    (property "Reference" "#PWR0121" (at 57.15 76.2 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 57.277 74.2442 0)
@@ -2713,7 +2661,7 @@
     (instances
       (project "ti_silver_link_b"
         (path "/e5c7f7c6-d5df-4ea5-b677-71f6c803368e"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0121") (unit 1)
         )
       )
     )
@@ -3016,7 +2964,7 @@
   (symbol (lib_id "power:GND") (at 53.34 129.54 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 00000000-0000-0000-0000-0000603eeaaf)
-    (property "Reference" "#PWR?" (at 53.34 135.89 0)
+    (property "Reference" "#PWR0127" (at 53.34 135.89 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 53.467 133.9342 0)
@@ -3032,32 +2980,7 @@
     (instances
       (project "ti_silver_link_b"
         (path "/e5c7f7c6-d5df-4ea5-b677-71f6c803368e"
-          (reference "#PWR?") (unit 1)
-        )
-      )
-    )
-  )
-
-  (symbol (lib_id "power:+3.3V") (at 53.34 101.6 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no)
-    (uuid 00000000-0000-0000-0000-0000603eeffd)
-    (property "Reference" "#PWR?" (at 53.34 105.41 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Value" "+3.3V" (at 53.721 97.2058 0)
-      (effects (font (size 1.27 1.27)))
-    )
-    (property "Footprint" "" (at 53.34 101.6 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Datasheet" "" (at 53.34 101.6 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (pin "1" (uuid e675f004-bda6-4acf-9673-e81a23be465f))
-    (instances
-      (project "ti_silver_link_b"
-        (path "/e5c7f7c6-d5df-4ea5-b677-71f6c803368e"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0127") (unit 1)
         )
       )
     )
@@ -3221,7 +3144,7 @@
   (symbol (lib_id "power:GND") (at 149.86 156.21 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 00000000-0000-0000-0000-000060407a01)
-    (property "Reference" "#PWR?" (at 149.86 162.56 0)
+    (property "Reference" "#PWR0120" (at 149.86 162.56 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 149.987 160.6042 0)
@@ -3237,7 +3160,7 @@
     (instances
       (project "ti_silver_link_b"
         (path "/e5c7f7c6-d5df-4ea5-b677-71f6c803368e"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0120") (unit 1)
         )
       )
     )
@@ -3323,7 +3246,7 @@
   (symbol (lib_id "power:+3V3") (at 147.32 91.44 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 00000000-0000-0000-0000-00006041837b)
-    (property "Reference" "#PWR?" (at 147.32 95.25 0)
+    (property "Reference" "#PWR0101" (at 147.32 95.25 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+3V3" (at 147.701 87.0458 0)
@@ -3339,7 +3262,7 @@
     (instances
       (project "ti_silver_link_b"
         (path "/e5c7f7c6-d5df-4ea5-b677-71f6c803368e"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0101") (unit 1)
         )
       )
     )
@@ -3348,7 +3271,7 @@
   (symbol (lib_id "power:+1V8") (at 154.94 91.44 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 00000000-0000-0000-0000-00006041960f)
-    (property "Reference" "#PWR?" (at 154.94 95.25 0)
+    (property "Reference" "#PWR0102" (at 154.94 95.25 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+1V8" (at 155.321 87.0458 0)
@@ -3364,7 +3287,7 @@
     (instances
       (project "ti_silver_link_b"
         (path "/e5c7f7c6-d5df-4ea5-b677-71f6c803368e"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0102") (unit 1)
         )
       )
     )
@@ -3469,56 +3392,6 @@
       (project "ti_silver_link_b"
         (path "/e5c7f7c6-d5df-4ea5-b677-71f6c803368e"
           (reference "R30") (unit 1)
-        )
-      )
-    )
-  )
-
-  (symbol (lib_id "power:+3.3V") (at 57.15 158.75 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no)
-    (uuid 00000000-0000-0000-0000-000060430e98)
-    (property "Reference" "#PWR?" (at 57.15 162.56 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Value" "+3.3V" (at 57.531 154.3558 0)
-      (effects (font (size 1.27 1.27)))
-    )
-    (property "Footprint" "" (at 57.15 158.75 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Datasheet" "" (at 57.15 158.75 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (pin "1" (uuid dfd14239-a39a-4767-8219-cdd733a143b8))
-    (instances
-      (project "ti_silver_link_b"
-        (path "/e5c7f7c6-d5df-4ea5-b677-71f6c803368e"
-          (reference "#PWR?") (unit 1)
-        )
-      )
-    )
-  )
-
-  (symbol (lib_id "power:+3.3V") (at 78.74 158.75 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no)
-    (uuid 00000000-0000-0000-0000-00006043183f)
-    (property "Reference" "#PWR?" (at 78.74 162.56 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Value" "+3.3V" (at 79.121 154.3558 0)
-      (effects (font (size 1.27 1.27)))
-    )
-    (property "Footprint" "" (at 78.74 158.75 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Datasheet" "" (at 78.74 158.75 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (pin "1" (uuid 58554e20-23dd-469f-b49c-7dbc0400b07e))
-    (instances
-      (project "ti_silver_link_b"
-        (path "/e5c7f7c6-d5df-4ea5-b677-71f6c803368e"
-          (reference "#PWR?") (unit 1)
         )
       )
     )
@@ -3632,7 +3505,7 @@
   (symbol (lib_id "power:+3V3") (at 186.69 137.16 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 00000000-0000-0000-0000-00006046d1a7)
-    (property "Reference" "#PWR?" (at 186.69 140.97 0)
+    (property "Reference" "#PWR0103" (at 186.69 140.97 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+3V3" (at 187.071 132.7658 0)
@@ -3648,7 +3521,7 @@
     (instances
       (project "ti_silver_link_b"
         (path "/e5c7f7c6-d5df-4ea5-b677-71f6c803368e"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0103") (unit 1)
         )
       )
     )
@@ -3706,35 +3579,10 @@
     )
   )
 
-  (symbol (lib_id "power:+3.3V") (at 173.99 38.1 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no)
-    (uuid 00000000-0000-0000-0000-000060481ae7)
-    (property "Reference" "#PWR?" (at 173.99 41.91 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Value" "+3.3V" (at 174.371 33.7058 0)
-      (effects (font (size 1.27 1.27)))
-    )
-    (property "Footprint" "" (at 173.99 38.1 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Datasheet" "" (at 173.99 38.1 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (pin "1" (uuid a67bccf5-f68c-4f91-b3ef-eb930c6272c3))
-    (instances
-      (project "ti_silver_link_b"
-        (path "/e5c7f7c6-d5df-4ea5-b677-71f6c803368e"
-          (reference "#PWR?") (unit 1)
-        )
-      )
-    )
-  )
-
   (symbol (lib_id "power:GND") (at 173.99 58.42 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 00000000-0000-0000-0000-000060482533)
-    (property "Reference" "#PWR?" (at 173.99 64.77 0)
+    (property "Reference" "#PWR0107" (at 173.99 64.77 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 174.117 62.8142 0)
@@ -3750,7 +3598,7 @@
     (instances
       (project "ti_silver_link_b"
         (path "/e5c7f7c6-d5df-4ea5-b677-71f6c803368e"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0107") (unit 1)
         )
       )
     )
@@ -3811,7 +3659,7 @@
   (symbol (lib_id "power:+1V8") (at 182.88 38.1 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 00000000-0000-0000-0000-00006049385b)
-    (property "Reference" "#PWR?" (at 182.88 41.91 0)
+    (property "Reference" "#PWR0113" (at 182.88 41.91 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+1V8" (at 183.261 33.7058 0)
@@ -3827,7 +3675,7 @@
     (instances
       (project "ti_silver_link_b"
         (path "/e5c7f7c6-d5df-4ea5-b677-71f6c803368e"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0113") (unit 1)
         )
       )
     )
@@ -3868,7 +3716,7 @@
   (symbol (lib_id "power:GND") (at 222.25 130.81 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 00000000-0000-0000-0000-0000604f11a9)
-    (property "Reference" "#PWR?" (at 222.25 137.16 0)
+    (property "Reference" "#PWR0109" (at 222.25 137.16 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 222.377 135.2042 0)
@@ -3884,32 +3732,7 @@
     (instances
       (project "ti_silver_link_b"
         (path "/e5c7f7c6-d5df-4ea5-b677-71f6c803368e"
-          (reference "#PWR?") (unit 1)
-        )
-      )
-    )
-  )
-
-  (symbol (lib_id "power:+3.3V") (at 222.25 113.03 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no)
-    (uuid 00000000-0000-0000-0000-000060500f0b)
-    (property "Reference" "#PWR?" (at 222.25 116.84 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Value" "+3.3V" (at 222.631 108.6358 0)
-      (effects (font (size 1.27 1.27)))
-    )
-    (property "Footprint" "" (at 222.25 113.03 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Datasheet" "" (at 222.25 113.03 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (pin "1" (uuid 489f837f-e94e-493f-b48e-b59b9d168854))
-    (instances
-      (project "ti_silver_link_b"
-        (path "/e5c7f7c6-d5df-4ea5-b677-71f6c803368e"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0109") (unit 1)
         )
       )
     )
@@ -3970,7 +3793,7 @@
   (symbol (lib_id "power:+3V3") (at 227.33 40.64 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 00000000-0000-0000-0000-000060524e52)
-    (property "Reference" "#PWR?" (at 227.33 44.45 0)
+    (property "Reference" "#PWR0119" (at 227.33 44.45 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+3V3" (at 227.711 36.2458 0)
@@ -3986,7 +3809,7 @@
     (instances
       (project "ti_silver_link_b"
         (path "/e5c7f7c6-d5df-4ea5-b677-71f6c803368e"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0119") (unit 1)
         )
       )
     )
@@ -3995,7 +3818,7 @@
   (symbol (lib_id "power:+3V3") (at 233.68 38.1 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 00000000-0000-0000-0000-000060525a77)
-    (property "Reference" "#PWR?" (at 233.68 41.91 0)
+    (property "Reference" "#PWR0115" (at 233.68 41.91 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+3V3" (at 234.061 33.7058 0)
@@ -4011,7 +3834,7 @@
     (instances
       (project "ti_silver_link_b"
         (path "/e5c7f7c6-d5df-4ea5-b677-71f6c803368e"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0115") (unit 1)
         )
       )
     )
@@ -4020,7 +3843,7 @@
   (symbol (lib_id "power:+3V3") (at 218.44 82.55 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 00000000-0000-0000-0000-0000605265b5)
-    (property "Reference" "#PWR?" (at 218.44 86.36 0)
+    (property "Reference" "#PWR0111" (at 218.44 86.36 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+3V3" (at 218.821 78.1558 0)
@@ -4036,7 +3859,7 @@
     (instances
       (project "ti_silver_link_b"
         (path "/e5c7f7c6-d5df-4ea5-b677-71f6c803368e"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0111") (unit 1)
         )
       )
     )
@@ -4045,7 +3868,7 @@
   (symbol (lib_id "power:VBUS") (at 57.15 39.37 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 00000000-0000-0000-0000-000060526e89)
-    (property "Reference" "#PWR?" (at 57.15 43.18 0)
+    (property "Reference" "#PWR0122" (at 57.15 43.18 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "VBUS" (at 57.531 34.9758 0)
@@ -4061,7 +3884,7 @@
     (instances
       (project "ti_silver_link_b"
         (path "/e5c7f7c6-d5df-4ea5-b677-71f6c803368e"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0122") (unit 1)
         )
       )
     )
@@ -4070,7 +3893,7 @@
   (symbol (lib_id "power:VBUS") (at 118.11 40.64 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 00000000-0000-0000-0000-00006052e18e)
-    (property "Reference" "#PWR?" (at 118.11 44.45 0)
+    (property "Reference" "#PWR0112" (at 118.11 44.45 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "VBUS" (at 118.491 36.2458 0)
@@ -4086,7 +3909,7 @@
     (instances
       (project "ti_silver_link_b"
         (path "/e5c7f7c6-d5df-4ea5-b677-71f6c803368e"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0112") (unit 1)
         )
       )
     )
@@ -4095,7 +3918,7 @@
   (symbol (lib_id "power:GND") (at 106.68 154.94 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 00000000-0000-0000-0000-0000605d0f10)
-    (property "Reference" "#PWR?" (at 106.68 161.29 0)
+    (property "Reference" "#PWR0126" (at 106.68 161.29 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 106.807 159.3342 0)
@@ -4111,7 +3934,57 @@
     (instances
       (project "ti_silver_link_b"
         (path "/e5c7f7c6-d5df-4ea5-b677-71f6c803368e"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0126") (unit 1)
+        )
+      )
+    )
+  )
+
+  (symbol (lib_id "power:+3V3") (at 173.99 38.1 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid 3688b9f3-5245-45d8-b422-9d618d98501f)
+    (property "Reference" "#PWR03" (at 173.99 41.91 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Value" "+3V3" (at 174.371 33.7058 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Footprint" "" (at 173.99 38.1 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "" (at 173.99 38.1 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (pin "1" (uuid 67a733eb-81a8-494c-9d15-884f33ceec43))
+    (instances
+      (project "ti_silver_link_b"
+        (path "/e5c7f7c6-d5df-4ea5-b677-71f6c803368e"
+          (reference "#PWR03") (unit 1)
+        )
+      )
+    )
+  )
+
+  (symbol (lib_id "power:+3V3") (at 53.34 101.6 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid 4f0e75a4-3cb0-44d7-a77e-58b67c095874)
+    (property "Reference" "#PWR07" (at 53.34 105.41 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Value" "+3V3" (at 53.721 97.2058 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Footprint" "" (at 53.34 101.6 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "" (at 53.34 101.6 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (pin "1" (uuid 6be6c1b3-cf99-4255-a8c9-65ce348b6e71))
+    (instances
+      (project "ti_silver_link_b"
+        (path "/e5c7f7c6-d5df-4ea5-b677-71f6c803368e"
+          (reference "#PWR07") (unit 1)
         )
       )
     )
@@ -4241,6 +4114,81 @@
       (project "ti_silver_link_b"
         (path "/e5c7f7c6-d5df-4ea5-b677-71f6c803368e"
           (reference "#PWR01") (unit 1)
+        )
+      )
+    )
+  )
+
+  (symbol (lib_id "power:+3V3") (at 78.74 158.75 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid b5f0767b-3eeb-4ce2-a94f-176308583aa3)
+    (property "Reference" "#PWR06" (at 78.74 162.56 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Value" "+3V3" (at 79.121 154.3558 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Footprint" "" (at 78.74 158.75 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "" (at 78.74 158.75 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (pin "1" (uuid e868e8d5-f18e-4b4a-bcf4-c9f51edc04ff))
+    (instances
+      (project "ti_silver_link_b"
+        (path "/e5c7f7c6-d5df-4ea5-b677-71f6c803368e"
+          (reference "#PWR06") (unit 1)
+        )
+      )
+    )
+  )
+
+  (symbol (lib_id "power:+3V3") (at 57.15 158.75 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid f4eb5837-17e6-4ee9-aa78-31b7dafb035b)
+    (property "Reference" "#PWR05" (at 57.15 162.56 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Value" "+3V3" (at 57.531 154.3558 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Footprint" "" (at 57.15 158.75 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "" (at 57.15 158.75 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (pin "1" (uuid 93d0eb21-c6e7-419e-9d75-3e897350bd22))
+    (instances
+      (project "ti_silver_link_b"
+        (path "/e5c7f7c6-d5df-4ea5-b677-71f6c803368e"
+          (reference "#PWR05") (unit 1)
+        )
+      )
+    )
+  )
+
+  (symbol (lib_id "power:+3V3") (at 222.25 113.03 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid f5f086a4-692e-4dd5-8f98-926c9e70a874)
+    (property "Reference" "#PWR04" (at 222.25 116.84 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Value" "+3V3" (at 222.631 108.6358 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Footprint" "" (at 222.25 113.03 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "" (at 222.25 113.03 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (pin "1" (uuid 2703de4b-34e5-4e0a-a6c4-1736c7ed1d5c))
+    (instances
+      (project "ti_silver_link_b"
+        (path "/e5c7f7c6-d5df-4ea5-b677-71f6c803368e"
+          (reference "#PWR04") (unit 1)
         )
       )
     )
