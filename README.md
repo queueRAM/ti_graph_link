@@ -8,7 +8,8 @@ This repository contains information about three types of TI-Graph Link adapters
 TI-Graph Link serial (gray)
 ---------------------------
 The gray TI-Graph Link cable uses a DB-25 serial connector and works with Windows and Macintosh computers. It includes adapters to connect to DB-9 RS232 serial port on a PC and a DIN adapter to connect to RS-422 serial port on a Mac. [Merthsoft's Link Cables page](http://merthsoft.com/linkguide/cable.html#greytigl) contains additional information about this cable.
-![TI-Graph Link serial gray](https://wiki.tiplanet.org/images/a/a4/TI-Graph_Link_cable_(GreyLink).jpg)
+![TI-Graph Link serial gray](https://github.com/user-attachments/assets/6a1121ca-d959-4561-b2e2-d1c1383b33c4)
+![TI-Graph Link serial gray PCB annotated](https://github.com/user-attachments/assets/c3fb39d2-6774-453e-9041-0a71899a0c55)
 
 ## Gray Link: Schematic
 Full schematic is included in the repository as [TI-Graph Link serial (gray) PDF](schematics/ti_graph_link_serial_gray/ti_graph_link_serial_gray_rev1.pdf) or KiCad.
