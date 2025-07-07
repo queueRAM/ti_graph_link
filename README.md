@@ -1,14 +1,34 @@
 TI-Graph Link adapters
 ----------------------
 This repository contains information about three types of TI-Graph Link adapters:
-* [TI-Graph Link serial (grey)](#ti-graph-link-serial-grey)
+* [TI-Graph Link serial (gray)](#ti-graph-link-serial-gray)
 * [TI-Graph Link serial (black)](#ti-graph-link-serial-black)
 * [TI USB Graph Link (silver)](#ti-usb-graph-link-silver)
 
-TI-Graph Link serial (grey)
+TI-Graph Link serial (gray)
 ---------------------------
-The grey TI-Graph Link cable uses a DB-25 serial connector and works with Windows and Macintosh computers. [Merthsoft's Link Cables page](http://merthsoft.com/linkguide/cable.html#greytigl) contains some basic information about this cable.
-![TI-Graph Link serial grey](https://wiki.tiplanet.org/images/a/a4/TI-Graph_Link_cable_(GreyLink).jpg)
+The gray TI-Graph Link cable uses a DB-25 serial connector and works with Windows and Macintosh computers. It includes adapters to connect to DB-9 RS232 serial port on a PC and a DIN adapter to connect to RS-422 serial port on a Mac. [Merthsoft's Link Cables page](http://merthsoft.com/linkguide/cable.html#greytigl) contains additional information about this cable.
+![TI-Graph Link serial gray](https://wiki.tiplanet.org/images/a/a4/TI-Graph_Link_cable_(GreyLink).jpg)
+
+## Gray Link: Schematic
+Full schematic is included in the repository as [TI-Graph Link serial (gray) PDF](schematics/ti_graph_link_serial_gray/ti_graph_link_serial_gray_rev1.pdf) or KiCad.
+![TI-Graph Link serial (gray) Schematic](schematics/ti_graph_link_serial_gray/ti_graph_link_serial_gray_rev1.png)
+
+The control of the cable is provided with a PIC16C54 which receives requests on serial TX, sends responses back on serial RX, and manages the graph link communication on the tip/ring of the 2.5mm cable through two pairs of pins. There are three power supplies on board: 5V regulator for the PIC and graph-link communication and positive and negative voltages for the RS232 communication with the host.
+
+### Gray Link: GPIO connectivity
+Graph Link   | Direction | GPIO | IC Pin
+-------------|-----------|------|-------
+Tip (red)    | In        | RA0  | 17
+Tip (red)    | Out       | RA1  | 18
+Ring (white) | In        | RA2  | 1
+Ring (white) | Out       | RA3  | 2
+
+Notable parts:
+* `U1`: PIC16C54
+* `VR1`: 5V regulator, likely similar to TelCom TC55
+* `CR3`/`CR4`: `M1M` diodes to supply power from RTS/DSR/DTR control lines
+* `U2`, `U3`, `U4`, `U5`, `U6`: variants of Schmitt trigger inverter
 
 TI-Graph Link serial (black)
 ----------------------------
@@ -86,7 +106,7 @@ Full schematic is included in the repository as ["B" Rev 3 PDF](https://raw.gith
 * `D2`: `3F` Chenmko Schottky barrier diode [CH461FGP (PDF)](http://www.chenmko.com.tw/assets/uploaded_docs/1310112518k0vqy.pdf)
 * `L1`, `L2`: `2R7` 2.7µH inductor
 * `U1`: `24LC64` 64kbit EEPROM: Microchip [24LC64 (PDF)](https://ww1.microchip.com/downloads/en/DeviceDoc/21189T.pdf)
-* `U2`: `AQI` TI LOD Regulator, 3.3V [TPS715 (PDF)](https://www.ti.com/lit/ds/symlink/tps715.pdf) (TPS71533DCKR)
+* `U2`: `AQI` TI LDO Regulator, 3.3V [TPS715 (PDF)](https://www.ti.com/lit/ds/symlink/tps715.pdf) (TPS71533DCKR)
 * `U3`: `TUSB3410` USB TI [TUSB3410 (PDF)](https://www.ti.com/lit/ds/symlink/tusb3410.pdf)
 * `U4`: `H8` Rohm Bias resistor transistor [IMH8A (PDF)](http://rohmfs.rohm.com/en/products/databook/datasheet/discrete/transistor/digital/umh8ntr-e.pdf)
 * `Y1`: `12.0F4K` 12MHz Crystal
