@@ -5,6 +5,30 @@ This repository contains information about three types of TI-Graph Link adapters
 * [TI-Graph Link serial (black)](#ti-graph-link-serial-black)
 * [TI USB Graph Link (silver)](#ti-usb-graph-link-silver)
 
+Building Firmware
+-----------------
+The included makefile build system can build both the Silver Link "B" and the serial Gray Link firmware. The resulting .eep file should be bit-compatible with the EEPROM contents.
+
+Silver Link build dependencies are:
+ * [sdcc](http://sdcc.sourceforge.net): versions 3.8.0 through 4.2.0 have been tested
+ * [GNU make](https://www.gnu.org/software/make/)
+ * Python 3: for the script which generates the Autoexec header and checksum
+
+Gray Link build dependencies are:
+ * [gputils](https://gputils.sourceforge.io/): version 1.5.2 has been tested
+ * [GNU make](https://www.gnu.org/software/make/)
+
+```sh
+$ make
+sdas8051 -lops ti_graph_link_silver.asm
+sdcc -mmcs51 --code-size 0x1400 ti_graph_link_silver.rel -o ti_graph_link_silver.hex
+makebin -p ti_graph_link_silver.hex ti_graph_link_silver.bin
+./tools/generate_eeprom.py ti_graph_link_silver.bin ti_graph_link_silver.eep
+gpasm  -o ti_graph_link_serial_gray.hex ti_graph_link_serial_gray.asm
+ti_graph_link_silver.bin: OK
+ti_graph_link_serial_gray.hex: OK
+```
+
 TI-Graph Link serial (gray)
 ---------------------------
 The gray TI-Graph Link cable uses a DB-25 serial connector and works with Windows and Macintosh computers. It includes adapters to connect to DB-9 RS232 serial port on a PC and a DIN adapter to connect to RS-422 serial port on a Mac. [Merthsoft's Link Cables page](http://merthsoft.com/linkguide/cable.html#greytigl) contains additional information about this cable.
@@ -138,21 +162,6 @@ OFFSET | TYPE                 | SIZE   | VALUE | DESCRIPTION
 TUSB3410 contains an 8052 microprocessor. The application code contained within the EEPROM
 is responsible for receiving commands over USB and communicating with the calculator over its
 PORT3 GPIO.
-
-### Building Firmware
-The disassembled firmware can be built using [sdcc](http://sdcc.sourceforge.net) and the included makefile build system. The resulting .eep file should be bit-compatible with the EEPROM contents. Build dependencies are:
- * [sdcc](http://sdcc.sourceforge.net): versions 3.8.0 through 4.2.0 have been tested
- * [GNU make](https://www.gnu.org/software/make/)
- * Python 3: for the script which generates the Autoexec header and checksum
-
-```sh
-$ make
-sdas8051 -lops ti_graph_link_silver.asm
-sdcc -mmcs51 --code-size 0x1400 ti_graph_link_silver.rel -o ti_graph_link_silver.hex
-makebin -p ti_graph_link_silver.hex ti_graph_link_silver.bin
-./tools/generate_eeprom.py ti_graph_link_silver.bin ti_graph_link_silver.eep
-ti_graph_link_silver.bin: OK
-```
 
 TI USB Graph Link Breadboard Edition
 ------------------------------------
