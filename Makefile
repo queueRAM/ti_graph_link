@@ -1,21 +1,41 @@
-AS = sdas8051
-CC = sdcc
+##############################################
+# SDCC Tools
+##############################################
+SDAS = sdas8051
+SDCC = sdcc
 MAKEBIN = makebin
 GENERATE_EEPROM = ./tools/generate_eeprom.py
 
-LDFLAGS = -mmcs51 --code-size 0x1400
-ASFLAGS = -lops
+SDLDFLAGS = -mmcs51 --code-size 0x1400
+SDASFLAGS = -lops
+##############################################
 
-TARGET = ti_graph_link_silver
+##############################################
+# gputils
+##############################################
+GPASM = gpasm
+GPASMFLAGS =
 
-all: $(TARGET).bin $(TARGET).eep
-	@sha1sum -c $(TARGET).sha1 || echo "Build succeeded, but does not match."
+#GPASM = gpasm -o ti_graph_link_serial_gray_pic16c54.hex ti_graph_link_serial_gray_pic16c54.asm && diff TI_Graph-Link_serial_gray_PIC16C54.hex ti_graph_link_serial_gray_pic16c54.hex
 
-ASM_FILES = ti_graph_link_silver.asm
-REL_FILES = $(ASM_FILES:.asm=.rel)
+##############################################
+# Targets
+##############################################
+
+SILVER_TARGET = ti_graph_link_silver
+GRAY_TARGET = ti_graph_link_serial_gray
+
+all: $(SILVER_TARGET).bin $(SILVER_TARGET).eep $(GRAY_TARGET).hex
+	@sha1sum -c $(SILVER_TARGET).sha1 || echo "Silver link build succeeded, but does not match."
+	@sha1sum -c $(GRAY_TARGET).sha1 || echo "Gray link build succeeded, but does not match."
+
+SILVER_ASM_FILES = $(SILVER_TARGET).asm
+SILVER_REL_FILES = $(SILVER_ASM_FILES:.asm=.rel)
+
+GRAY_ASM_FILES = $(GRAY_TARGET).asm
 
 %.rel: %.asm
-	$(AS) $(ASFLAGS) $<
+	$(SDAS) $(SDASFLAGS) $<
 
 %.bin: %.hex
 	$(MAKEBIN) -p $< $@
@@ -23,8 +43,14 @@ REL_FILES = $(ASM_FILES:.asm=.rel)
 %.eep: %.bin
 	$(GENERATE_EEPROM) $< $@
 
-$(TARGET).hex: $(REL_FILES)
-	$(CC) $(LDFLAGS) $^ -o $@
+$(SILVER_TARGET).hex: $(SILVER_REL_FILES)
+	$(SDCC) $(SDLDFLAGS) $^ -o $@
+
+$(GRAY_TARGET).hex: $(GRAY_ASM_FILES)
+	$(GPASM) $(GPASMFLAGS) -o $@ $^
 
 clean:
-	$(RM) $(REL_FILES) $(TARGET).bin $(TARGET).hex
+	$(RM) $(SILVER_REL_FILES) $(SILVER_TARGET).bin $(SILVER_TARGET).hex \
+	       $(GRAY_TARGET).hex $(GRAY_TARGET).cod $(GRAY_TARGET).lst
+
+.PHONY: all clean
