@@ -1,0 +1,24 @@
+# Prerequisites
+*.d
+
+# Object files
+*.rel
+
+# Linker output
+*.cod
+*.lk
+*.map
+*.mem
+
+# Executables
+*.bin
+*.eep
+*.hex
+
+# Debug files
+*.lst
+*.rst
+*.sym
+
+# macOS
+.DS_Store
