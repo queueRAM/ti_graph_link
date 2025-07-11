@@ -1,5 +1,5 @@
 ; assemble with gputils:
-; $ gpasm -o ti_graph_link_serial_gray_pic16c54.hex ti_graph_link_serial_gray_pic16c54.asm
+; $ gpasm -o ti_graph_link_serial_gray.hex ti_graph_link_serial_gray.asm
 
     processor 16C54
     #include <P16C5x.INC>
@@ -7,7 +7,7 @@
     __idlocs 0xC830
 
 ; RAM variables
-LRAM_0x07 equ 0x07 ; flags, bits 0-5 are used
+StateFlags equ 0x07 ; flags, bits 0-5 are used
 LRAM_0x08 equ 0x08 ; stores incoming serial bits from TX
 LRAM_0x09 equ 0x09 ; stores count of remaining bits
 LRAM_0x0A equ 0x0A ; stores the bits sending out GraphLink
@@ -44,14 +44,14 @@ LADR_0x0000:
     GOTO LADR_0x0000
 
 LADR_0x0006:
-    BTFSC LRAM_0x07,5    ; if LRAM_0x07[5] == 1:
+    BTFSC StateFlags,5   ; if StateFlags[5] == 1:
       GOTO LADR_0x00E5   ;   GOTO LADR_0x00E5
 
-    BSF LRAM_0x07,3      ; LRAM_0x07[3] = 1
+    BSF StateFlags,3     ; StateFlags[3] = 1
     MOVLW 0x08           ; LRAM_0x0B = 0x08
     MOVWF LRAM_0x0B
 LADR_0x000B:
-    MOVLW LADR_0x000F    ; JumpBack = 0x0F
+    MOVLW LADR_0x000F    ; JumpBack = LADR_0x000F
     MOVWF JumpBack
 LADR_0x000D:
     BTFSC TMR0,7         ; if TMR0[7] == 1:
@@ -70,7 +70,7 @@ LADR_0x000F:
     BCF LRAM_0x0A,7
     BSF RING_out         ; RING = 1
 
-    MOVLW LADR_0x001C    ; JumpBack = 0x1C
+    MOVLW LADR_0x001C    ; JumpBack = LADR_0x001C
     MOVWF JumpBack
 
 LADR_0x001A:
@@ -83,7 +83,7 @@ LADR_0x001C:
 
     BCF RING_out         ; RING = 0
 
-    MOVLW LADR_0x0025    ; JumpBack = 0x025
+    MOVLW LADR_0x0025    ; JumpBack = LADR_0x0025
     MOVWF JumpBack
 
 ; wait until RING is high or timeout
@@ -108,10 +108,10 @@ LADR_0x0025:
     INCF LRAM_0x0D,F     ; LRAM_0x0D += 1
 
     BTFSC LRAM_0x0D,4    ; if LRAM_0x0D[4] == 1:
-      BSF LRAM_0x07,5    ;   LRAM_0x07 |= 0'b0010_0000
+      BSF StateFlags,5   ;   StateFlags[5] = 1
 
-    BCF LRAM_0x07,4      ; LRAM_0x07 &= 0'b1110_0111
-    BCF LRAM_0x07,3
+    BCF StateFlags,4     ; StateFlags[4] = 0
+    BCF StateFlags,3     ; StateFlags[3] = 0
 
     MOVLW LADR_0x0000    ; JumpBack = LADR_0x0000
     MOVWF JumpBack
@@ -163,10 +163,10 @@ LADR_0x0048:             ; mostly a copy of the code from LADR_0x0025
     INCF LRAM_0x0D,F     ; LRAM_0x0D += 1
 
     BTFSC LRAM_0x0D,4    ; if LRAM_0x0D[4] == 1:
-      BSF LRAM_0x07,5    ;   LRAM_0x07 |= 0'b0010_0000
+      BSF StateFlags,5   ;   StateFlags[5] = 1
 
-    BCF LRAM_0x07,4      ; LRAM_0x07 &= 0'b1110_0111
-    BCF LRAM_0x07,3
+    BCF StateFlags,4     ; StateFlags[4] = 0
+    BCF StateFlags,3     ; StateFlags[3] = 0
 
     MOVLW LADR_0x0000    ; JumpBack = LADR_0x0000
     MOVWF JumpBack
@@ -175,10 +175,10 @@ LADR_0x0048:             ; mostly a copy of the code from LADR_0x0025
     GOTO LADR_0x00E5
 
 LADR_0x0059:
-    BTFSC LRAM_0x07,4    ; if LRAM_0x07[4] == 1:
+    BTFSC StateFlags,4   ; if StateFlags[4] == 1:
       GOTO LADR_0x00F6   ;   GOTO LADR_0x00F6
 
-    BSF LRAM_0x07,3      ; LRAM_0x07 |= 0'b0000_1000
+    BSF StateFlags,3     ; StateFlags[3] = 1
     MOVLW 0x08           ; LRAM_0x0B = 0x08
     MOVWF LRAM_0x0B
 
@@ -192,9 +192,9 @@ LADR_0x0059:
     INCF LRAM_0x0F,F     ; LRAM_0x0F += 1
     DECF LRAM_0x0D,F     ; LRAM_0x0D -= 1
     BTFSC STATUS,Z       ; if LRAM_0x0D == 0:
-      BSF LRAM_0x07,4    ;   LRAM_0x07 |= 0'b0001_0000
+      BSF StateFlags,4   ;   StateFlags[4] = 1
 
-    BCF LRAM_0x07,5      ; LRAM_0x07 &= 0'b1101_1111
+    BCF StateFlags,5     ; StateFlags[5] = 0
     MOVF LRAM_0x0D,W     ; W = LRAM_0x0D
     XORLW 0x0F           ; W = W ^ 0x0F
     BTFSC STATUS,Z       ; if STATUS.Z == 1 (W == 0):
@@ -202,8 +202,8 @@ LADR_0x0059:
 
     MOVF LRAM_0x0D,W     ; W = LRAM_0x0D
     XORLW 0x0E           ; W = W ^ 0x0E
-    BTFSC STATUS,Z       ; if STATUS.Z == 0 || LRAM_0x07[0] == 0:
-      BTFSS LRAM_0x07,0
+    BTFSC STATUS,Z       ; if STATUS.Z == 0 || StateFlags[0] == 0:
+      BTFSS StateFlags,0
         BCF Ser_CTS      ; CTS = 0
 
 LADR_0x0071:
@@ -239,7 +239,7 @@ LADR_0x0080:
 
     DECFSZ LRAM_0x0B,F   ; LRAM_0x0B -= 1
       GOTO LADR_0x0071   ; if LRAM_0x0B != 0: GOTO LADR_0x0071
-    BCF LRAM_0x07,3      ; LRAM_0x07 &= 0'b1111_0111
+    BCF StateFlags,3     ; StateFlags[3] = 0
 
     MOVLW LADR_0x0059    ; JumpBack = LADR_0x0059
     MOVWF JumpBack
@@ -275,14 +275,14 @@ LADR_0x0097:
 
     DECFSZ LRAM_0x0B,F   ; LRAM_0x0B -= 1
       GOTO LADR_0x0071   ; if LRAM_0x0B != 0: GOTO LADR_0x0071
-    BCF LRAM_0x07,3      ; LRAM_0x07 &= 0'b1111_0111
+    BCF StateFlags,3     ; StateFlags[3] = 0
     MOVLW LADR_0x0059    ; JumpBack = LADR_0x0059
     MOVWF JumpBack
     CLRWDT               ; reset watchdog
     GOTO LADR_0x00F6
 
 LADR_0x00A2:
-    BSF LRAM_0x07,0      ; LRAM_0x07 |= 0'b0000_0001
+    BSF StateFlags,0     ; StateFlags[0] = 1
 
     MOVLW 0x1E           ; TMR0 = 0x1E
     MOVWF TMR0
@@ -301,7 +301,7 @@ LADR_0x00A2:
 
 LADR_0x00AE:
     RRF LRAM_0x08,F      ; LRAM_0x08 = LRAM_0x08 >> 1
-    BCF LRAM_0x08,7
+    BCF LRAM_0x08,7      ; initially set bit to 0, if TX=0, then set high
     BTFSS Ser_TX         ; if TX == 0:
       BSF LRAM_0x08,7    ;   LRAM_0x08 |= 0'b1000_0000
 
@@ -320,17 +320,17 @@ LADR_0x00AE:
     INCF LRAM_0x0D,F     ; LRAM_0x0D += 1
 
     BTFSC LRAM_0x0D,4    ; if LRAM_0x0D[4] == 1:
-      BSF LRAM_0x07,5    ;   LRAM_0x07 |= 0'b0010_0000
+      BSF StateFlags,5   ;   StateFlags[5] = 1
 
-    BCF LRAM_0x07,4      ; LRAM_0x07 &= 0'b1110_1110
-    BCF LRAM_0x07,0
+    BCF StateFlags,4     ; StateFlags[4] = 0
+    BCF StateFlags,0     ; StateFlags[0] = 0
 
     CLRWDT               ; reset watchdog
     MOVF JumpBack,W      ; GOTO JumpBack
     MOVWF PCL
 
 LADR_0x00C3:
-    BSF LRAM_0x07,1      ; LRAM_0x07 |= 0'b0000_0010
+    BSF StateFlags,1     ; StateFlags[1] = 1
     BSF Ser_RX           ; RX = 1
 
     MOVF LRAM_0x0F,W     ; FSR = LRAM_0x0F | 0xF0
@@ -343,8 +343,8 @@ LADR_0x00C3:
     INCF LRAM_0x0F,F     ; LRAM_0x0F += 1
     DECF LRAM_0x0D,F     ; LRAM_0x0D -= 1
     BTFSC STATUS,Z       ; if STATUS.Z == 1 (W == 0):
-      BSF LRAM_0x07,4    ;   LRAM_0x07 |= 0'b0001_0000
-    BCF LRAM_0x07,5      ; LRAM_0x07 &= 0'b1101_1111
+      BSF StateFlags,4   ;   StateFlags[4] = 1
+    BCF StateFlags,5     ; StateFlags[5] = 0
 
     MOVLW 0x08           ; LRAM_0x09 = 0x08
     MOVWF LRAM_0x09
@@ -353,7 +353,7 @@ LADR_0x00C3:
     MOVWF PCL            ; GOTO JumpBack
 
 LADR_0x00D3:
-    BTFSC LRAM_0x07,2    ; if LRAM_0x07[2] == 1:
+    BTFSC StateFlags,2   ; if StateFlags[2] == 1:
       GOTO LADR_0x00DF   ;   GOTO LADR_0x00DF
     RRF LRAM_0x08,F      ; STATUS.C = LRAM_0x08[0], LRAM_0x08 = LRAM_0x08 >> 1
     BTFSC STATUS,C       ; if STATUS.C == 1:
@@ -363,13 +363,13 @@ LADR_0x00D3:
     MOVF JumpBack,W
     DECFSZ LRAM_0x09,F   ; LRAM_0x09 -= 1
       MOVWF PCL          ; if LRAM_0x09 != 0: GOTO JumpBack
-    BSF LRAM_0x07,2      ; LRAM_0x07 |= 0'b0000_0100
+    BSF StateFlags,2     ; StateFlags[2] = 1
     MOVWF PCL            ; GOTO JumpBack
 LADR_0x00DF:
     BCF Ser_RX           ; RX = 0
 
-    BCF LRAM_0x07,1      ; LRAM_0x07 &= 0'b1111_1001
-    BCF LRAM_0x07,2
+    BCF StateFlags,1     ; StateFlags[1] = 0
+    BCF StateFlags,2     ; StateFlags[2] = 0
 
     CLRWDT               ; reset watchdog
     MOVF JumpBack,W
@@ -385,14 +385,14 @@ LADR_0x00E7:             ; likely a timeout case from gotos above
     MOVLW 0x2E           ; TMR0 = 0x2E
     MOVWF TMR0
 
-    BTFSC LRAM_0x07,1    ; if LRAM_0x07[1] == 1:
+    BTFSC StateFlags,1   ; if StateFlags[1] == 1:
       GOTO LADR_0x00D3   ;   GOTO LADR_0x00D3
 
-    BTFSS LRAM_0x07,4    ; if LRAM_0x07[4] == 0:
+    BTFSS StateFlags,4   ; if StateFlags[4] == 0:
       GOTO LADR_0x00C3   ;   GOTO LADR_0x00C3
 
     MOVF JumpBack,W
-    BTFSC LRAM_0x07,3    ; if LRAM_0x07[3] == 1:
+    BTFSC StateFlags,3   ; if StateFlags[3] == 1:
       MOVWF PCL          ;  GOTO JumpBack
 
     BTFSC TIP_in         ; if TIP == 0 || RING == 0:
@@ -413,7 +413,7 @@ LADR_0x00F8:
     MOVLW 0x2E           ; TMR0 = 0x2E
     MOVWF TMR0
 
-    BTFSC LRAM_0x07,0    ; if LRAM_0x07 == 1:
+    BTFSC StateFlags,0   ; if StateFlags == 1:
       GOTO LADR_0x00AE   ;   GOTO LADR_0x00AE
 
     MOVLW 0x66           ; TMR0 = 0x66
@@ -423,18 +423,18 @@ LADR_0x00F8:
       GOTO LADR_0x00A2   ;   GOTO LADR_0x00A2
 
     MOVF JumpBack,W
-    BTFSC LRAM_0x07,3   ; if LRAM_0x07[3] == 1:
+    BTFSC StateFlags,3  ; if StateFlags[3] == 1:
       MOVWF PCL         ;   GOTO JumpBack
 
     MOVF JumpBack,W
-    BTFSS LRAM_0x07,4    ; if LRAM_0x07[4] == 0:
+    BTFSS StateFlags,4   ; if StateFlags[4] == 0:
       GOTO LADR_0x0059   ;   GOTO LADR_0x0059
     GOTO LADR_0x0109     ; useless
 
 LADR_0x0109:
     CLRWDT               ; reset watchdog
 
-    MOVLW LADR_0x0059    ; JumpBack = 0x59
+    MOVLW LADR_0x0059    ; JumpBack = LADR_0x0059
     MOVWF JumpBack
 
     BSF DebugPin         ; PORTB[7] = 1
@@ -442,7 +442,7 @@ LADR_0x0109:
     BTFSC Ser_TX         ; if TX == 1:
       GOTO LADR_0x00A2   ;   GOTO LADR_0x00A2
 
-    MOVLW LADR_0x0006    ; JumpBack = 0x06
+    MOVLW LADR_0x0006    ; JumpBack = LADR_0x0006
     MOVWF JumpBack
 
     BCF DebugPin         ; PORTB[7] = 0
@@ -483,8 +483,8 @@ Initialize: ; 0x0127
     MOVWF STATUS
 
     ; initialize variables
-    MOVLW 0x11           ; LRAM_0x07 = 0x11
-    MOVWF LRAM_0x07
+    MOVLW 0x11           ; StateFlags[4] = 1, StateFlags[0] = 1
+    MOVWF StateFlags
     CLRF LRAM_0x08       ; LRAM_0x08 = 0x00
     CLRF LRAM_0x09       ; LRAM_0x09 = 0x00
     CLRF LRAM_0x0A       ; LRAM_0x0A = 0x00
@@ -492,13 +492,13 @@ Initialize: ; 0x0127
     MOVLW 0x10
     MOVWF LRAM_0x0E      ; LRAM_0x0E = 0x10
     MOVWF LRAM_0x0F      ; LRAM_0x0F = 0x10
-    CLRF LRAM_0x0D       ; LRAM_0x0B = 0x00
+    CLRF LRAM_0x0D       ; LRAM_0x0D = 0x00
 
     ; set all output pins low
-    BCF TIP_out          ; clear TIP
-    BCF RING_out         ; clear RING
-    BCF Ser_RX           ; clear RX
-    BCF Ser_CTS          ; clear CTS_CD
+    BCF TIP_out          ; TIP = 0
+    BCF RING_out         ; RING = 0
+    BCF Ser_RX           ; RX = 0
+    BCF Ser_CTS          ; CTS_CD = 0
     GOTO LADR_0x0109
 
     ; Reset vector
